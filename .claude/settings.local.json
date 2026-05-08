@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /d/comic-fe/src -type f -name *.tsx -o -name *.ts -o -name *.jsx -o -name *.js)",
+      "Bash(head -50 /d/comic-fe/src/app/\\\\\\(admin\\\\\\)/admin/layout.tsx)",
+      "Bash(xargs wc:*)",
+      "Bash(npm list:*)",
+      "Bash(done)",
+      "Read(//d/comic-fe/**)",
+      "Bash(bash /tmp/count_imports.sh)",
+      "Bash(bash /tmp/check_validations.sh)",
+      "Bash(for schema:*)",
+      "Bash(uniq done:*)",
+      "Bash(for f:*)",
+      "Bash(do)",
+      "Bash(sed -i 's/\\(item as any\\)\\\\.name/item.name/g' \"$f\")",
+      "Bash(echo \"Fixed: $f\")"
+    ]
+  }
+}
