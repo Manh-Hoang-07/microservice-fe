@@ -69,21 +69,6 @@ export default function AdminMenus({ title = "Quản lý menu", createButtonText
     fetchRelatedData();
   }, [fetchRelatedData]);
 
-  const restoreMenu = async (menu: Menu) => {
-    try {
-      const response = await api.put(endpoints.restore(menu.id));
-      if (response.data?.success) {
-        toast.success("Menu đã được khôi phục thành công");
-        actions.refresh();
-        fetchRelatedData();
-      } else {
-        toast.error("Không thể khôi phục menu");
-      }
-    } catch (error) {
-      toast.error("Không thể khôi phục menu");
-    }
-  };
-
   const handleDeleteConfirm = async () => {
     await defaultDeleteConfirm();
     fetchRelatedData();
@@ -171,9 +156,9 @@ export default function AdminMenus({ title = "Quản lý menu", createButtonText
                         onEdit={() => openEdit(menu, endpoints)}
                         additionalActions={[
                           {
-                            label: menu.deleted_at ? "Khôi phục" : "Xóa",
-                            action: () => (menu.deleted_at ? restoreMenu(menu) : openDelete(menu, endpoints)),
-                            icon: menu.deleted_at ? "refresh" : "trash",
+                            label: "Xóa",
+                            action: () => openDelete(menu, endpoints),
+                            icon: "trash",
                           },
                         ]}
                       />
