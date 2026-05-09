@@ -2,13 +2,13 @@
 
 import { useState, useCallback } from "react";
 import apiClient from "@/lib/api/client";
-import { publicEndpoints } from "@/lib/api/endpoints";
+import { userEndpoints } from "@/lib/api/endpoints";
 import { normalizeDetailResponse } from "@/lib/api/response-normalizer";
 import { useToastContext } from "@/contexts/ToastContext";
 import { useAuthStore } from "@/lib/store/authStore";
 
 export interface UserProfile {
-  id: number;
+  id: number | string;
   username: string;
   email: string;
   phone?: string;
@@ -21,14 +21,13 @@ export interface UserProfile {
   created_at: string;
   updated_at: string;
   profile?: {
-    id: number;
-    user_id: number;
     birthday?: string;
     gender?: string;
     address?: string;
+    countryId?: string;
+    provinceId?: string;
+    wardId?: string;
     about?: string;
-    created_at: string;
-    updated_at: string;
   };
 }
 
@@ -39,12 +38,16 @@ export interface UpdateProfileData {
   birthday?: string;
   gender?: string;
   address?: string;
+  countryId?: string;
+  provinceId?: string;
+  wardId?: string;
   about?: string;
 }
 
 export interface ChangePasswordData {
   oldPassword: string;
-  newPassword: string;
+  password: string;
+  confirmPassword: string;
 }
 
 export interface UserManagementResult {
@@ -60,23 +63,25 @@ export function useUserManagement() {
   const { showSuccess, showError } = useToastContext();
   const authStore = useAuthStore();
 
-  // Lấy thông tin user hiện tại
+  // Lay thong tin user hien tai
   const getCurrentUser = useCallback(async (): Promise<UserProfile | null> => {
     try {
       setLoading(true);
-      const response = await apiClient.get(publicEndpoints.users.me);
+      const response = await apiClient.get(userEndpoints.profile.me);
       const userData = normalizeDetailResponse<UserProfile>(response.data);
 
       if (userData) {
         setUser(userData);
         return userData;
       } else {
-        showError(response.data?.message || "Không thể lấy thông tin user");
+        showError(response.data?.message || "Khong the lay thong tin user");
         return null;
       }
     } catch (error: unknown) {
       const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Không thể lấy thông tin user";
+        (error as { response?: { data?: { message?: string; error?: string } } })?.response?.data?.error ||
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "Khong the lay thong tin user";
       showError(errorMessage);
       return null;
     } finally {
@@ -84,39 +89,36 @@ export function useUserManagement() {
     }
   }, [showError]);
 
-  // Cập nhật thông tin user
+  // Cap nhat thong tin user
   const updateProfile = useCallback(
     async (data: UpdateProfileData): Promise<UserManagementResult> => {
       try {
         setLoading(true);
         const response = await apiClient.patch(
-          publicEndpoints.users.updateProfile,
+          userEndpoints.profile.update,
           data
         );
 
         const profileData = normalizeDetailResponse<UserProfile>(response.data);
 
         if (response.data.success) {
-          // Cập nhật user trong store
           if (profileData) {
             setUser(profileData);
-            // Cập nhật auth store
             authStore.setUser(profileData as any);
-            // Refresh user info trong store
             await authStore.refreshUserInfo();
           }
 
           showSuccess(
-            response.data.message || "Cập nhật thông tin thành công"
+            response.data.message || "Cap nhat thong tin thanh cong"
           );
           return {
             success: true,
-            message: response.data.message || "Cập nhật thông tin thành công",
+            message: response.data.message || "Cap nhat thong tin thanh cong",
             data: profileData as unknown as Record<string, unknown> | undefined,
           };
         } else {
           const errorMessage =
-            response.data.message || "Cập nhật thông tin thất bại";
+            response.data.message || "Cap nhat thong tin that bai";
           showError(errorMessage);
           return {
             success: false,
@@ -126,7 +128,9 @@ export function useUserManagement() {
         }
       } catch (error: unknown) {
         const errorMessage =
-          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||"Có lỗi xảy ra, vui lòng thử lại";
+          (error as { response?: { data?: { message?: string; error?: string } } })?.response?.data?.error ||
+          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          "Co loi xay ra, vui long thu lai";
         showError(errorMessage);
         return {
           success: false,
@@ -140,25 +144,25 @@ export function useUserManagement() {
     [showSuccess, showError, authStore]
   );
 
-  // Đổi mật khẩu
+  // Doi mat khau
   const changePassword = useCallback(
     async (data: ChangePasswordData): Promise<UserManagementResult> => {
       try {
         setLoading(true);
         const response = await apiClient.patch(
-          publicEndpoints.users.changePassword,
+          userEndpoints.profile.changePassword,
           data
         );
 
         if (response.data.success) {
-          showSuccess(response.data.message || "Đổi mật khẩu thành công");
+          showSuccess(response.data.message || "Doi mat khau thanh cong");
           return {
             success: true,
-            message: response.data.message || "Đổi mật khẩu thành công",
+            message: response.data.message || "Doi mat khau thanh cong",
           };
         } else {
           const errorMessage =
-            response.data.message || "Đổi mật khẩu thất bại";
+            response.data.message || "Doi mat khau that bai";
           showError(errorMessage);
           return {
             success: false,
@@ -168,7 +172,9 @@ export function useUserManagement() {
         }
       } catch (error: unknown) {
         const errorMessage =
-          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||"Có lỗi xảy ra, vui lòng thử lại";
+          (error as { response?: { data?: { message?: string; error?: string } } })?.response?.data?.error ||
+          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          "Co loi xay ra, vui long thu lai";
         showError(errorMessage);
         return {
           success: false,
@@ -182,17 +188,14 @@ export function useUserManagement() {
     [showSuccess, showError]
   );
 
-  // Đăng xuất
+  // Dang xuat
   const logout = useCallback(async (): Promise<void> => {
     try {
       setLoading(true);
-      await apiClient.post(publicEndpoints.auth.logout);
+      await authStore.logout();
     } catch (error) {
-      // Ignore logout errors, vẫn tiếp tục xóa state
       console.error("Logout error:", error);
     } finally {
-      // Xóa state trong auth store
-      await authStore.logout();
       setLoading(false);
     }
   }, [authStore]);
@@ -206,6 +209,3 @@ export function useUserManagement() {
     logout,
   };
 }
-
-
-

@@ -1,5 +1,16 @@
+export interface UserProfile {
+  birthday?: string;
+  gender?: string;
+  address?: string;
+  country_id?: string | number | bigint | null;
+  province_id?: string | number | bigint | null;
+  ward_id?: string | number | bigint | null;
+  about?: string;
+  [key: string]: unknown;
+}
+
 export interface User {
-  id: number;
+  id: number | string;
   name?: string;
   username?: string;
   email: string;
@@ -15,6 +26,9 @@ export interface User {
   about?: string;
   created_at?: string;
   updated_at?: string;
+  email_verified_at?: string;
+  last_login_at?: string;
+  profile?: UserProfile;
 }
 
 export interface LoginCredentials {
@@ -76,7 +90,7 @@ export interface AuthActions {
   setUser: (user: User) => void;
 }
 
-/** Empty auth state fields - dùng để reset state, tránh lặp code */
+/** Empty auth state fields - dung de reset state, tranh lap code */
 export const EMPTY_AUTH_STATE: Pick<AuthState, 'isAuthenticated' | 'user' | 'userRole' | 'userPermissions'> = {
   isAuthenticated: false,
   user: null,

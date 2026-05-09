@@ -23,14 +23,9 @@ export interface UseSystemConfigFetchResult {
 // ===== HELPERS =====
 
 const resolveEndpoint = (group: string, isAdmin: boolean): string => {
-  // Nếu là admin, ưu tiên dùng adminEndpoints
-  if (isAdmin) {
-    return adminEndpoints.systemConfigs.getByGroup(group);
-  }
-
-  // Sử dụng API mới cho general config
+  // Config microservice: cùng endpoint cho cả public và admin
+  // Admin chỉ khác ở chỗ gửi kèm Authorization header (đã có interceptor)
   if (group === "general") return publicEndpoints.systemConfigs.general;
-  // Fallback về API cũ cho các group khác
   return publicEndpoints.systemConfigs.getByGroup(group);
 };
 

@@ -20,9 +20,9 @@ export interface UserProfile {
     image?: string;
     birthday?: string;
     gender?: string;
-    country_id?: number | null;
-    province_id?: number | null;
-    ward_id?: number | null;
+    countryId?: string | null;
+    provinceId?: string | null;
+    wardId?: string | null;
     created_at?: string;
 }
 
@@ -34,9 +34,9 @@ export const updateProfileSchema = z.object({
     birthday: z.string().optional(),
     gender: z.string().optional(),
     address: z.string().max(255, "Địa chỉ tối đa 255 ký tự").optional(),
-    country_id: z.number().nullable().optional(),
-    province_id: z.number().nullable().optional(),
-    ward_id: z.number().nullable().optional(),
+    countryId: z.string().nullable().optional(),
+    provinceId: z.string().nullable().optional(),
+    wardId: z.string().nullable().optional(),
     about: z.string().max(1000, "Giới thiệu tối đa 1000 ký tự").optional(),
 });
 
@@ -66,9 +66,9 @@ function flattenProfileData(data: UserData): UserProfile {
         birthday: data.profile?.birthday || data.birthday,
         gender: data.profile?.gender || data.gender,
         address: data.profile?.address || data.address,
-        country_id: data.profile?.country_id ? Number(data.profile.country_id) : null,
-        province_id: data.profile?.province_id ? Number(data.profile.province_id) : null,
-        ward_id: data.profile?.ward_id ? Number(data.profile.ward_id) : null,
+        countryId: data.profile?.countryId ? String(data.profile.countryId) : null,
+        provinceId: data.profile?.provinceId ? String(data.profile.provinceId) : null,
+        wardId: data.profile?.wardId ? String(data.profile.wardId) : null,
         about: data.profile?.about || data.about,
     };
 }
@@ -136,9 +136,9 @@ export function useUserProfile() {
                 birthday: data.birthday || undefined,
                 gender: data.gender || undefined,
                 address: data.address || undefined,
-                country_id: data.country_id || undefined,
-                province_id: data.province_id || undefined,
-                ward_id: data.ward_id || undefined,
+                countryId: data.countryId || undefined,
+                provinceId: data.provinceId || undefined,
+                wardId: data.wardId || undefined,
                 about: data.about || undefined,
             });
 
@@ -167,9 +167,9 @@ export function useUserProfile() {
         setIsChangingPassword(true);
         try {
             const response = await userService.changePassword({
-                old_password: data.currentPassword,
+                oldPassword: data.currentPassword,
                 password: data.newPassword,
-                password_confirmation: data.confirmPassword,
+                confirmPassword: data.confirmPassword,
             });
 
             if (response.success) {
@@ -202,9 +202,9 @@ export function useUserProfile() {
                     birthday: userData.birthday ? new Date(userData.birthday).toISOString().split('T')[0] : "",
                     gender: userData.gender || "",
                     address: userData.address || "",
-                    country_id: userData.country_id || null,
-                    province_id: userData.province_id || null,
-                    ward_id: userData.ward_id || null,
+                    countryId: userData.countryId || null,
+                    provinceId: userData.provinceId || null,
+                    wardId: userData.wardId || null,
                     about: userData.about || "",
                 });
                 setIsEditModalOpen(true);

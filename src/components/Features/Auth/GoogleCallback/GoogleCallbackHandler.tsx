@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/lib/store/authStore";
 import { setTokenToCookie } from "@/lib/api/utils";
+import { storage } from "@/lib/storage";
 
 export default function GoogleCallbackHandler() {
     const router = useRouter();
@@ -14,46 +15,45 @@ export default function GoogleCallbackHandler() {
         const token = searchParams.get("token");
         const refreshToken = searchParams.get("refreshToken");
         const error = searchParams.get("error");
-        const expiresIn = searchParams.get("expiresIn");
 
         if (error) {
-            router.push(`/login?error=${error}`);
+            const errorMessages: Record<string, string> = {
+                ACCOUNT_LINKED_TO_OTHER: "Email này đã liên kết với tài khoản khác",
+                ACCOUNT_LOCKED: "Tài khoản bị khóa",
+                GOOGLE_AUTH_FAILED: "Đăng nhập Google thất bại",
+            };
+            const message = errorMessages[error] || "Có lỗi xảy ra";
+            router.push(`/login?error=${encodeURIComponent(message)}`);
             return;
         }
 
         if (token) {
-            // 1. Lưu token vào cookie
             setTokenToCookie(token);
-
-            // Lưu refreshToken vào localStorage nếu cần thiết
             if (refreshToken) {
-                localStorage.setItem("refreshToken", refreshToken);
+                storage.auth.setRefreshToken(refreshToken);
             }
-
-            // 2. Fetch user info để cập nhật state trong store
             fetchUserInfo(true)
-                .then(() => {
-                    // 3. Redirect user vào app
-                    router.push("/admin");
-                })
+                .then(() => { router.push("/admin"); })
                 .catch((err) => {
                     console.error("Failed to fetch user info", err);
                     router.push("/login?error=auth_failed");
                 });
         } else {
-            // Nếu không có token và không có error, có thể do truy cập trực tiếp URL
-            // Redirect về login
             router.push("/login?error=invalid_callback");
         }
     }, [searchParams, router, fetchUserInfo]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <h2 className="text-xl font-semibold text-gray-700">Đang xử lý đăng nhập...</h2>
-                <p className="text-gray-500 mt-2">Vui lòng đợi trong giây lát</p>
+        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>
+            <div style={{ textAlign: "center" }}>
+                <div style={{ position: "relative", width: "56px", height: "56px", margin: "0 auto 20px" }}>
+                    <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid #e2e8f0" }} />
+                    <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid #6366f1", borderTopColor: "transparent", animation: "spin 0.8s linear infinite" }} />
+                </div>
+                <p style={{ fontSize: "16px", fontWeight: 600, color: "#0f172a", margin: 0 }}>Đang xử lý đăng nhập...</p>
+                <p style={{ fontSize: "14px", color: "#94a3b8", marginTop: "6px" }}>Vui lòng đợi trong giây lát</p>
             </div>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
     );
 }

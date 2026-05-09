@@ -1,200 +1,167 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { env } from "@/config/env";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@/components/UI/Navigation/Button";
-import FormField from "@/components/UI/Forms/FormField";
 import { useAuthStore } from "@/lib/store/authStore";
 import { useToastContext } from "@/contexts/ToastContext";
+import { authEndpoints } from "@/lib/api/endpoints";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
-// 1. Khai báo schema validate (Declarative Validation)
 const loginSchema = z.object({
   email: z.string().min(1, "Email là bắt buộc").email("Email không hợp lệ").max(255, "Email quá dài"),
-  password: z.string().min(1, "Mật khẩu là bắt buộc").min(6, "Mật khẩu phải có ít nhất 6 ký tự").max(100, "Mật khẩu quá dài"),
-  rememberMe: z.boolean().default(false),
+  password: z.string().min(1, "Mật khẩu là bắt buộc").min(6, "Mật khẩu phải có ít nhất 6 ký tự").max(72, "Mật khẩu quá dài"),
+  remember: z.boolean().default(false),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, isAuthenticated, isInitialized } = useAuthStore();
   const { showError } = useToastContext();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passFocused, setPassFocused] = useState(false);
+
 
   useEffect(() => {
-    if (isInitialized && isAuthenticated) {
-      router.replace("/user");
-    }
+    const error = searchParams.get("error");
+    if (error) showError(decodeURIComponent(error));
+  }, [searchParams, showError]);
+
+  useEffect(() => {
+    if (isInitialized && isAuthenticated) router.replace("/user");
   }, [isInitialized, isAuthenticated, router]);
 
-  // 2. Sử dụng react-hook-form
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setError,
-  } = useForm<LoginFormValues>({
+  const { register, handleSubmit, formState: { errors }, setError } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      rememberMe: false,
-    },
+    defaultValues: { email: "", password: "", remember: false },
   });
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
-
     try {
-      const result = await login({
-        email: data.email,
-        password: data.password,
-        remember: data.rememberMe,
-      });
-
+      const result = await login({ email: data.email, password: data.password, remember: data.remember });
       if (result.success) {
-        router.push("/admin");
+        router.push(searchParams.get("next") || "/admin");
       } else {
-        if (result.errors) {
-          // Map lỗi từ API về field tương ứng
-          Object.keys(result.errors).forEach(key => {
-            const messages = result.errors![key];
-            if (messages?.[0]) {
-              setError(key as any, { message: messages[0] });
-            }
-          });
-        }
-        showError(result.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
+        if (result.errors) Object.keys(result.errors).forEach(key => {
+          const m = result.errors![key]; if (m?.[0]) setError(key as any, { message: m[0] });
+        });
+        showError(result.message || "Đăng nhập thất bại.");
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      showError("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
-    } finally {
-      setIsLoading(false);
-    }
+    } catch { showError("Đã có lỗi xảy ra."); }
+    finally { setIsLoading(false); }
   };
 
+  const inputStyle = (focused: boolean, hasError: boolean): React.CSSProperties => ({
+    width: "100%", height: "48px", paddingLeft: "44px", paddingRight: "14px",
+    borderRadius: "10px", fontSize: "15px", color: "#0f172a", outline: "none",
+    background: "#f8fafc",
+    border: hasError ? "1.5px solid #ef4444" : focused ? "1.5px solid #6366f1" : "1.5px solid #e2e8f0",
+    boxShadow: focused ? "0 0 0 3px rgba(99,102,241,0.10)" : hasError ? "0 0 0 3px rgba(239,68,68,0.08)" : "none",
+    transition: "all 0.2s ease",
+  });
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Đăng nhập vào tài khoản
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Hoặc{" "}
-            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-              đăng ký tài khoản mới
-            </Link>
-          </p>
+    <>
+      {/* Card */}
+      <div className="auth-card" style={{ background: "#ffffff", borderRadius: "20px", padding: "40px 44px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px rgba(0,0,0,0.03), 0 20px 50px rgba(99,102,241,0.08)" }}>
+        {/* Brand */}
+        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+          <div style={{ width: "52px", height: "52px", background: "linear-gradient(135deg, #6366f1, #7c3aed)", borderRadius: "16px", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: "14px", boxShadow: "0 8px 20px rgba(99,102,241,0.3)" }}>
+            <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div style={{ fontSize: "22px", fontWeight: 700, color: "#0f172a", letterSpacing: "-0.4px", marginBottom: "4px" }}>Comic Haven</div>
+          <div style={{ fontSize: "14px", color: "#94a3b8" }}>Đăng nhập để tiếp tục</div>
         </div>
 
-        <div className="bg-white py-8 px-6 shadow rounded-lg">
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <FormField
-              label="Email"
-              type="email"
-              placeholder="nhap@email.com"
-              {...register("email")}
-              error={errors.email?.message}
-              autocomplete="email"
-              required
-            />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {/* Email */}
+          <div style={{ marginBottom: "16px" }}>
+            <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#374151", marginBottom: "7px" }}>Email</label>
+            <div style={{ position: "relative" }}>
+              <div style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: emailFocused ? "#6366f1" : "#9ca3af", pointerEvents: "none", display: "flex" }}>
+                <Mail style={{ width: 16, height: 16 }} />
+              </div>
+              <input type="email" placeholder="you@example.com"
+                {...register("email")} autoComplete="email"
+                style={inputStyle(emailFocused, !!errors.email)}
+                onFocus={() => setEmailFocused(true)} onBlur={() => setEmailFocused(false)} />
+            </div>
+            {errors.email && <p style={{ marginTop: "6px", fontSize: "13px", color: "#ef4444" }}>{errors.email.message}</p>}
+          </div>
 
-            <div className="relative">
-              <FormField
-                label="Mật khẩu"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••••"
-                {...register("password")}
-                error={errors.password?.message}
-                autocomplete="current-password"
-                required
-              />
-              <button
-                type="button"
-                className="absolute top-[34px] right-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c4.9 0 9.112-3.574 10.074-8.125l-1.125-1.125c-.621-.621-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v3.75c0 .621.504 1.125 1.125h1.125l1.125 1.125c.621.621 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-1.125A1.125 1.125 0 0112 18.875z" />
-                  </svg>
-                ) : (
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm4 8a2 2 0 11-4 0 2 2 0 014 0zM2.458 12C3.732 7.943 7.523 5 12 5c1.477 0 2.268.943 3.542 2l.542 2.447a2 2 0 012.477 1.891A8.967 8.967 0 0112 20c-4.477 0-8.268-1.943-9.542-4.542l2.447-2.447A2 2 0 0112.477 10.109 8.967 8.967 0 018.954 4.542z" />
-                  </svg>
-                )}
+          {/* Password */}
+          <div style={{ marginBottom: "16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "7px" }}>
+              <label style={{ fontSize: "13px", fontWeight: 500, color: "#374151" }}>Mật khẩu</label>
+              <Link href="/forgot-password" style={{ fontSize: "13px", fontWeight: 500, color: "#6366f1", textDecoration: "none" }}>Quên mật khẩu?</Link>
+            </div>
+            <div style={{ position: "relative" }}>
+              <div style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: passFocused ? "#6366f1" : "#9ca3af", pointerEvents: "none", display: "flex" }}>
+                <Lock style={{ width: 16, height: 16 }} />
+              </div>
+              <input type={showPassword ? "text" : "password"} placeholder="Nhập mật khẩu"
+                {...register("password")} autoComplete="current-password"
+                style={{ ...inputStyle(passFocused, !!errors.password), paddingRight: "48px" }}
+                onFocus={() => setPassFocused(true)} onBlur={() => setPassFocused(false)} />
+              <button type="button" tabIndex={-1} onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: "4px", top: "50%", transform: "translateY(-50%)", width: "40px", height: "40px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", background: "none", border: "none", cursor: "pointer", color: "#9ca3af" }}>
+                {showPassword ? <EyeOff style={{ width: 16, height: 16 }} /> : <Eye style={{ width: 16, height: 16 }} />}
               </button>
             </div>
-
-            <div className="flex items-center justify-between">
-              <FormField
-                type="checkbox"
-                checkboxLabel="Ghi nhớ đăng nhập"
-                {...register("rememberMe")}
-              />
-
-              <div className="text-sm">
-                <Link href="/forgot-password" title="Quên mật khẩu" className="font-medium text-blue-600 hover:text-blue-500">
-                  Quên mật khẩu?
-                </Link>
-              </div>
-            </div>
-
-            <div>
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full"
-              >
-                {isLoading ? "Đang xử lý..." : "Đăng nhập"}
-              </Button>
-            </div>
-          </form>
-        </div>
-
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 text-gray-500">Hoặc đăng nhập với</span>
-            </div>
+            {errors.password && <p style={{ marginTop: "6px", fontSize: "13px", color: "#ef4444" }}>{errors.password.message}</p>}
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <button
-              onClick={() => {
-                window.location.href = `${env.apiUrl}/api/google`;
-              }}
-              className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
-            >
-              <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M22.56 12.25c0-1.35-1.1-2.44-2.44-2.44H4.44c-1.34 0-2.44 1.09-2.44 2.44v4.44c0 1.35 1.1 2.44 2.44h15.12c1.34 0 2.44-1.09 2.44-2.44v-4.44z" />
-                <path d="M15.67 10.43c0-1.35-1.1-2.44-2.44-2.44H8.33c-1.34 0-2.44 1.09-2.44 2.44v4.44c0 1.35 1.1 2.44 2.44h4.89c1.35 0 2.44-1.09 2.44-2.44v-4.44z" />
-                <path d="M15.67 16.56c0-1.35-1.1-2.44-2.44-2.44H8.33c-1.34 0-2.44 1.09-2.44 2.44v4.44c0 1.35 1.1 2.44 2.44h4.89c1.35 0 2.44-1.09 2.44-2.44v-4.44z" />
-              </svg>
-              Google
-            </button>
+          {/* Remember */}
+          <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", marginBottom: "20px" }}>
+            <input type="checkbox" {...register("remember")} style={{ width: "15px", height: "15px", accentColor: "#6366f1", cursor: "pointer" }} />
+            <span style={{ fontSize: "13px", color: "#64748b" }}>Ghi nhớ đăng nhập</span>
+          </label>
 
-            <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
-              <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.406.398.859-.267 1.657-.716 2.306-1.324-.814-1.484-1.31-2.206z" />
-              </svg>
-              Facebook
-            </button>
-          </div>
+          {/* Submit */}
+          <button type="submit" disabled={isLoading} style={{ width: "100%", height: "48px", borderRadius: "10px", background: "linear-gradient(135deg, #6366f1 0%, #7c3aed 100%)", color: "white", fontSize: "14.5px", fontWeight: 600, border: "none", cursor: isLoading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", opacity: isLoading ? 0.65 : 1, boxShadow: "0 4px 14px rgba(99,102,241,0.35)", transition: "all 0.2s ease", marginBottom: "20px" }}>
+            {isLoading ? (
+              <><svg style={{ animation: "spin 1s linear infinite", width: 18, height: 18 }} viewBox="0 0 24 24" fill="none"><circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3.003 7.938l3-2.647z" /></svg>Đang đăng nhập...</>
+            ) : "Đăng nhập"}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+          <div style={{ flex: 1, height: "1px", background: "#e2e8f0" }} />
+          <span style={{ fontSize: "12px", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em" }}>Hoặc</span>
+          <div style={{ flex: 1, height: "1px", background: "#e2e8f0" }} />
         </div>
+
+        {/* Google */}
+        <button type="button" onClick={() => { window.location.href = `${env.apiUrl}${authEndpoints.google}`; }} style={{ width: "100%", height: "48px", borderRadius: "10px", border: "1.5px solid #e2e8f0", background: "white", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", fontSize: "14px", fontWeight: 500, color: "#374151", cursor: "pointer", transition: "all 0.2s" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
+          Tiếp tục với Google
+        </button>
       </div>
-    </div>
+
+      {/* Footer */}
+      <p style={{ marginTop: "24px", textAlign: "center", fontSize: "13.5px", color: "#94a3b8" }}>
+        Chưa có tài khoản?{" "}
+        <Link href="/register" style={{ fontWeight: 600, color: "#6366f1", textDecoration: "none" }}>Đăng ký miễn phí</Link>
+      </p>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </>
   );
 }

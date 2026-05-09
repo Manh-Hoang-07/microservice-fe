@@ -21,9 +21,9 @@ export interface UserData {
         birthday?: string;
         gender?: string;
         address?: string;
-        country_id?: number | string | bigint | null;
-        province_id?: number | string | bigint | null;
-        ward_id?: number | string | bigint | null;
+        countryId?: string | null;
+        provinceId?: string | null;
+        wardId?: string | null;
         about?: string;
     };
     // Flattened properties for convenience/compatibility if needed
@@ -32,9 +32,9 @@ export interface UserData {
     birthday?: string;
     gender?: string;
     address?: string;
-    country_id?: number | string | bigint | null;
-    province_id?: number | string | bigint | null;
-    ward_id?: number | string | bigint | null;
+    countryId?: string | null;
+    provinceId?: string | null;
+    wardId?: string | null;
     about?: string;
     created_at?: string;
     updated_at?: string;
@@ -46,9 +46,9 @@ export interface UpdateProfileRequest {
     birthday?: string; // YYYY-MM-DD
     gender?: string; // male, female, other
     address?: string;
-    country_id?: number | null;
-    province_id?: number | null;
-    ward_id?: number | null;
+    countryId?: string | null;
+    provinceId?: string | null;
+    wardId?: string | null;
     about?: string;
 }
 
@@ -59,9 +59,9 @@ export interface UpdateProfileResponse {
 }
 
 export interface ChangePasswordRequest {
-    old_password: string;
+    oldPassword: string;
     password: string;
-    password_confirmation: string;
+    confirmPassword: string;
 }
 
 export interface ChangePasswordResponse {

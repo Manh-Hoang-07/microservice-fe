@@ -82,7 +82,7 @@ export default function SystemConfigForm({ group, fields }: SystemConfigFormProp
         setIsSubmitting(true);
 
         try {
-            const response = await api.post(adminEndpoints.systemConfigs.update(group), formData) as { data: any };
+            const response = await api.put(adminEndpoints.systemConfigs.update(group), formData) as { data: any };
             if (response.data.success) {
                 showSuccess("Cập nhật cấu hình thành công");
                 refresh();

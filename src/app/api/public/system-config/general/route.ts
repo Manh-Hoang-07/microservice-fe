@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/config/env";
 import { cacheGet, cacheSet } from "@/lib/redis";
 
-const CACHE_TTL_SECONDS = 60 * 60; // 1 giờ
-const CACHE_KEY = "public:general-config";
+const CACHE_TTL_SECONDS = 60 * 10; // 10 phút (khớp với server cache)
+const CACHE_KEY = "config:public:general";
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,9 +15,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Gọi backend API
+    // Gọi config-service qua Nginx
     const response = await fetch(
-      `${env.apiUrl}/api/public/SystemConfig/general`,
+      `${env.apiUrl}/api/config/general`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     );
 
     if (!response.ok) {
-      throw new Error(`Backend API error: ${response.status}`);
+      throw new Error(`Config service error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -45,29 +45,34 @@ export async function GET(request: NextRequest) {
 
     // Default config nếu không có cache và backend lỗi
     const defaultConfig = {
-      site_name: env.siteName,
-      site_description: env.siteDescription,
-      site_logo: null,
-      site_favicon: null,
-      site_email: null,
-      site_phone: null,
-      site_address: null,
-      site_copyright: null,
-      timezone: "Asia/Ho_Chi_Minh",
-      locale: "vi",
-      currency: "VND",
-      contact_channels: null,
-      meta_title: null,
-      meta_description: null,
-      meta_keywords: null,
-      og_title: null,
-      og_description: null,
-      og_image: null,
-      canonical_url: null,
-      google_analytics_id: null,
-      google_search_console: null,
-      facebook_pixel_id: null,
-      twitter_site: null,
+      success: true,
+      data: {
+        site_name: env.siteName,
+        site_description: env.siteDescription,
+        site_logo: null,
+        site_favicon: null,
+        site_email: null,
+        site_phone: null,
+        site_address: null,
+        site_country_id: null,
+        site_province_id: null,
+        site_ward_id: null,
+        site_copyright: null,
+        timezone: "Asia/Ho_Chi_Minh",
+        locale: "vi",
+        currency: "VND",
+        contact_channels: [],
+        meta_title: null,
+        meta_keywords: null,
+        og_title: null,
+        og_description: null,
+        og_image: null,
+        canonical_url: null,
+        google_analytics_id: null,
+        google_search_console: null,
+        facebook_pixel_id: null,
+        twitter_site: null,
+      },
     };
 
     return NextResponse.json(defaultConfig, { headers: { "X-Cache": "ERROR" } });

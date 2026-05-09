@@ -1,43 +1,47 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import { env } from "@/config/env";
 import { createLogger } from "@/lib/logger";
+import { storage } from "@/lib/storage";
+import { setTokenToCookie, clearTokenFromCookie } from "@/lib/api/utils";
 
 const log = createLogger('api:client');
 
 /**
- * Get token from cookie or localStorage
+ * Get access token from cookie or localStorage
  */
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
 
-  // Try cookie first (like Nuxt)
   const cookies = document.cookie.split(";");
-  for (let cookie of cookies) {
+  for (const cookie of cookies) {
     const [name, value] = cookie.trim().split("=");
     if (name === "auth_token") {
       return decodeURIComponent(value || "");
     }
   }
 
-  // Fallback to localStorage
   return localStorage.getItem("auth_token");
 }
 
 /**
- * Get group ID: ưu tiên localStorage, fallback về cookie
+ * Get refresh token from storage
+ */
+function getRefreshToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return storage.auth.getRefreshToken();
+}
+
+/**
+ * Get group ID: uu tien localStorage, fallback ve cookie
  */
 function getGroupId(): string | null {
   if (typeof window === "undefined") return null;
 
-  // Ưu tiên localStorage (theo tài liệu mới)
   const storedGroupId = localStorage.getItem("selected_group_id");
-  if (storedGroupId) {
-    return storedGroupId;
-  }
+  if (storedGroupId) return storedGroupId;
 
-  // Fallback về cookie (backward compatible)
   const cookies = document.cookie.split(";");
-  for (let cookie of cookies) {
+  for (const cookie of cookies) {
     const [name, value] = cookie.trim().split("=");
     if (name === "group_id") {
       return decodeURIComponent(value || "");
@@ -47,7 +51,7 @@ function getGroupId(): string | null {
   return null;
 }
 
-// Create axios instance with default configuration
+// Create axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: env.apiUrl,
   timeout: 10000,
@@ -58,21 +62,33 @@ const apiClient: AxiosInstance = axios.create({
   },
 });
 
-// Request interceptor to add auth token and group ID
+// ── Refresh token state ──────────────────────────
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}> = [];
+
+function processQueue(error: unknown, token: string | null = null) {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) reject(error);
+    else resolve(token!);
+  });
+  failedQueue = [];
+}
+
+// ── Request interceptor ──────────────────────────
 apiClient.interceptors.request.use(
   (config) => {
-    // Tự động thêm token vào header nếu có
     const token = getToken();
     if (token) {
       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
-      // Xóa flag redirect khi user đã có token hợp lệ (đã đăng nhập lại)
       if (typeof window !== "undefined") {
         sessionStorage.removeItem("auth_redirect");
       }
     }
 
-    // Tự động thêm X-Group-Id header nếu có
     const groupId = getGroupId();
     if (groupId) {
       config.headers = config.headers || {};
@@ -81,59 +97,121 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle common errors
+// ── Response interceptor with auto refresh ───────
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response;
-  },
-  (error: AxiosError) => {
-    // Handle common error responses
-    if (error.response) {
-      const status = error.response.status;
+  (response: AxiosResponse) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
-      // Handle 401 Unauthorized: Token hết hạn → logout
-      // Chỉ redirect khi đang ở trang protected (admin/user), không redirect ở public page
-      // vì background auth-check (fetchUserInfo) tự xử lý 401 trong catch block của nó
-      if (status === 401 && typeof window !== "undefined") {
-        const path = window.location.pathname;
-        const isProtectedPage = path.startsWith("/admin") || path.startsWith("/user");
-        const alreadyHandled = sessionStorage.getItem("auth_redirect");
+    if (!error.response) {
+      return Promise.reject(error);
+    }
 
-        if (isProtectedPage && !alreadyHandled && path !== "/login") {
-          sessionStorage.setItem("auth_redirect", "1");
+    const status = error.response.status;
 
-          // Xóa token và group_id
-          localStorage.removeItem("auth_token");
-          localStorage.removeItem("selected_group_id");
-          localStorage.removeItem("user_groups");
+    // Handle 401: try refresh token
+    if (status === 401 && originalRequest && !originalRequest._retry) {
+      // Don't try to refresh if this IS the refresh request or login request
+      const url = originalRequest.url || "";
+      if (url.includes("/auth/refresh") || url.includes("/auth/login")) {
+        return Promise.reject(error);
+      }
 
-          // Xóa cookies
-          document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-          document.cookie = "group_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      // If already refreshing, queue this request
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+          }
+          return apiClient(originalRequest);
+        });
+      }
 
-          window.location.href = "/login";
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshTokenValue = getRefreshToken();
+        const { data } = await axios.post(
+          `${env.apiUrl}/api/auth/refresh`,
+          { refreshToken: refreshTokenValue },
+          { withCredentials: true }
+        );
+
+        if (data.success && data.data?.token) {
+          const newToken = data.data.token;
+          const newRefreshToken = data.data.refreshToken;
+
+          // Save new tokens
+          setTokenToCookie(newToken);
+          if (newRefreshToken) {
+            storage.auth.setRefreshToken(newRefreshToken);
+          }
+
+          processQueue(null, newToken);
+
+          // Retry original request with new token
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          }
+          return apiClient(originalRequest);
         }
-      }
 
-      // Handle 403 Forbidden: Không có quyền
-      if (status === 403) {
-        // Silent failing for forbidden requests, components should handle their own errors
+        // Refresh failed - logout
+        processQueue(error, null);
+        handleForceLogout();
+        return Promise.reject(error);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        handleForceLogout();
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
+    }
 
-      // Handle 500 Server Error
-      if (status >= 500) {
-        log.error("Server error", error.response.data);
-      }
+    // Handle 403 Forbidden: silent
+    if (status === 403) {
+      // Components handle their own errors
+    }
+
+    // Handle 500+ Server Error
+    if (status >= 500) {
+      log.error("Server error", error.response.data);
     }
 
     return Promise.reject(error);
   }
 );
+
+/**
+ * Force logout: clear all tokens and redirect to login
+ */
+function handleForceLogout() {
+  if (typeof window === "undefined") return;
+
+  clearTokenFromCookie();
+  storage.auth.clearRefreshToken();
+  storage.auth.clearToken();
+  storage.user.clearData();
+  storage.user.clearPermissions();
+  storage.group.clearSelected();
+  storage.group.clearGroups();
+
+  document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = "group_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
+  const path = window.location.pathname;
+  const isProtectedPage = path.startsWith("/admin") || path.startsWith("/user");
+  if (isProtectedPage) {
+    window.location.href = "/login";
+  }
+}
 
 // API methods
 export const api = {
@@ -154,6 +232,3 @@ export const api = {
 };
 
 export default apiClient;
-
-
-

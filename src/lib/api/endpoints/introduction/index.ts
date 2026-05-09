@@ -1,0 +1,10 @@
+export { aboutEndpoints } from './about';
+export { certificateEndpoints } from './certificates';
+export { contactEndpoints } from './contacts';
+export { faqEndpoints } from './faqs';
+export { galleryEndpoints } from './gallery';
+export { partnerEndpoints } from './partners';
+export { projectEndpoints } from './projects';
+export { staffEndpoints } from './staff';
+export { testimonialEndpoints } from './testimonials';
+export { homeEndpoints } from './home';

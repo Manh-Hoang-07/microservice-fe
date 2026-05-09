@@ -49,9 +49,9 @@ export default function ChangePasswordForm() {
 
     try {
       const response = await userService.changePassword({
-        old_password: data.currentPassword,
+        oldPassword: data.currentPassword,
         password: data.newPassword,
-        password_confirmation: data.confirmPassword,
+        confirmPassword: data.confirmPassword,
       });
 
       if (response.success) {

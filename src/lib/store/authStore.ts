@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AxiosError } from "axios";
 import apiClient from "@/lib/api/client";
-import { publicEndpoints, userEndpoints } from "@/lib/api/endpoints";
+import { userEndpoints } from "@/lib/api/endpoints";
 import { setTokenToCookie, clearTokenFromCookie, getTokenFromCookie } from "@/lib/api/utils";
 import { initializeUserGroups } from "@/lib/group/utils";
 import { storage } from "@/lib/storage";
@@ -12,29 +12,30 @@ import { EMPTY_AUTH_STATE } from "./authTypes";
 // Re-export types cho backward compatibility
 export type { User, LoginCredentials, RegisterData, ResetPasswordData, AuthResult, AuthState, AuthActions };
 
-const FETCH_CACHE_DURATION = 30000; // 30 giây
+const FETCH_CACHE_DURATION = 30000; // 30 giay
 
-/** Xóa user data khỏi localStorage */
+/** Xoa user data khoi localStorage */
 function clearLocalUserData() {
   storage.user.clearData();
   storage.user.clearPermissions();
 }
 
-/** Xóa tất cả auth + group data khỏi localStorage & cookies */
+/** Xoa tat ca auth + group data khoi localStorage & cookies */
 function clearAllLocalData() {
   clearLocalUserData();
+  storage.auth.clearRefreshToken();
   storage.group.clearGroups();
   storage.group.clearSelected();
   clearTokenFromCookie("group_id");
 }
 
-/** Lưu user data vào localStorage */
+/** Luu user data vao localStorage */
 function persistUserData(user: User) {
   storage.user.setData(user);
   storage.user.setPermissions(user.permissions || []);
 }
 
-/** Extract user state từ API user object */
+/** Extract user state tu API user object */
 function userToState(user: User) {
   return {
     user,
@@ -44,24 +45,33 @@ function userToState(user: User) {
   };
 }
 
-type ApiError = AxiosError<{ message?: string; errors?: Record<string, string[]> }>;
+type ApiError = AxiosError<{ message?: string; error?: string; errors?: Record<string, string[]> }>;
 
-/** Xử lý error response thành AuthResult */
+/** Xu ly error response thanh AuthResult */
 function handleAuthError(error: unknown, defaultMessage: string): AuthResult {
   const e = error as ApiError;
   if (e.response?.status === 401) {
-    return { success: false, message: e.response?.data?.message || "Email hoặc mật khẩu không chính xác." };
+    return { success: false, message: e.response?.data?.error || e.response?.data?.message || "Email hoac mat khau khong chinh xac." };
+  }
+  if (e.response?.status === 403) {
+    return { success: false, message: e.response?.data?.error || "Tai khoan bi khoa. Vui long thu lai sau 30 phut." };
+  }
+  if (e.response?.status === 429) {
+    return { success: false, message: "Ban da gui qua nhieu yeu cau. Vui long doi va thu lai." };
+  }
+  if (e.response?.status === 409) {
+    return { success: false, message: e.response?.data?.error || "Tai khoan da ton tai.", errors: e.response?.data?.errors };
   }
   if (e.response?.status === 400 || e.response?.status === 422) {
-    return { success: false, message: e.response?.data?.message || "Dữ liệu không hợp lệ", errors: e.response?.data?.errors };
+    return { success: false, message: e.response?.data?.error || e.response?.data?.message || "Du lieu khong hop le", errors: e.response?.data?.errors };
   }
   if (e.code === "ECONNABORTED") {
-    return { success: false, message: "Kết nối bị timeout, vui lòng thử lại" };
+    return { success: false, message: "Ket noi bi timeout, vui long thu lai" };
   }
   if (!e.response) {
-    return { success: false, message: "Không thể kết nối đến server" };
+    return { success: false, message: "Khong the ket noi den server" };
   }
-  return { success: false, message: e.response?.data?.message || defaultMessage };
+  return { success: false, message: e.response?.data?.error || e.response?.data?.message || defaultMessage };
 }
 
 export const useAuthStore = create<AuthState & AuthActions>()(
@@ -96,20 +106,40 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           const response = await apiClient.post(userEndpoints.auth.login, credentials);
 
           if (response.data.success) {
+            const { token, refreshToken, expiresIn } = response.data.data || {};
+
+            // Save access token to cookie + localStorage
+            if (token) {
+              const days = credentials.remember ? 30 : 7;
+              setTokenToCookie(token, "auth_token", days);
+              storage.auth.setToken(token);
+            }
+
+            // Save refresh token to storage
+            if (refreshToken) {
+              storage.auth.setRefreshToken(refreshToken);
+            }
+
             set({ isAuthenticated: true });
 
-            if (response.data.data?.token) {
-              const days = credentials.remember ? 30 : 7;
-              setTokenToCookie(response.data.data.token, "auth_token", days);
+            // Fetch user info from /api/auth/me — pass token explicitly since the
+            // cookie may not be readable yet in the same tick (cross-origin request).
+            if (token) {
+              try {
+                const meResponse = await apiClient.get(userEndpoints.profile.me, {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+                if (meResponse.data.success && meResponse.data.data) {
+                  const user = meResponse.data.data;
+                  set(userToState(user));
+                  persistUserData(user);
+                }
+              } catch {
+                // Token is valid but couldn't fetch user info - still authenticated
+              }
             }
 
-            if (response.data.data?.user) {
-              const user = response.data.data.user;
-              set(userToState(user));
-              persistUserData(user);
-            }
-
-            // Xóa group cũ khi đăng nhập lại
+            // Clear old group data
             storage.group.clearGroups();
             storage.group.clearSelected();
             clearTokenFromCookie("group_id");
@@ -117,9 +147,9 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             return { success: true, data: response.data.data, message: response.data.message };
           }
 
-          return { success: false, message: response.data.message || "Đăng nhập thất bại" };
+          return { success: false, message: response.data.message || response.data.error || "Dang nhap that bai" };
         } catch (error: unknown) {
-          return handleAuthError(error, "Lỗi kết nối");
+          return handleAuthError(error, "Loi ket noi");
         }
       },
 
@@ -128,24 +158,24 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           const response = await apiClient.post(userEndpoints.auth.register, data);
 
           if (response.data.success || response.status === 201) {
-            return { success: true, data: response.data.data, message: response.data.message || "Đăng ký thành công." };
+            return { success: true, data: response.data.data, message: response.data.message || "Dang ky thanh cong." };
           }
 
-          return { success: false, message: response.data.message || "Đăng ký thất bại", errors: response.data.errors };
+          return { success: false, message: response.data.message || "Dang ky that bai", errors: response.data.errors };
         } catch (error: unknown) {
-          return handleAuthError(error, "Lỗi kết nối");
+          return handleAuthError(error, "Loi ket noi");
         }
       },
 
       sendOtpRegister: async (email: string): Promise<AuthResult> => {
         try {
           const response = await apiClient.post(userEndpoints.auth.sendOtpRegister, { email });
-          return { success: true, message: response.data.message || "Mã OTP đã được gửi đến email của bạn." };
+          return { success: true, message: response.data.data?.message || response.data.message || "Ma OTP da duoc gui den email cua ban." };
         } catch (error: unknown) {
           const e = error as ApiError;
           return {
             success: false,
-            message: e.response?.data?.message || "Không thể gửi OTP. Vui lòng thử lại sau.",
+            message: e.response?.data?.error || e.response?.data?.message || "Khong the gui OTP. Vui long thu lai sau.",
             errors: e.response?.data?.errors,
           };
         }
@@ -154,12 +184,12 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       sendOtpForgotPassword: async (email: string): Promise<AuthResult> => {
         try {
           const response = await apiClient.post(userEndpoints.auth.sendOtpForgotPassword, { email });
-          return { success: true, message: response.data.message || "Mã OTP đã được gửi đến email của bạn." };
+          return { success: true, message: response.data.data?.message || response.data.message || "Ma OTP da duoc gui den email cua ban." };
         } catch (error: unknown) {
           const e = error as ApiError;
           return {
             success: false,
-            message: e.response?.data?.message || "Email không tồn tại hoặc lỗi server.",
+            message: e.response?.data?.error || e.response?.data?.message || "Email khong ton tai hoac loi server.",
             errors: e.response?.data?.errors,
           };
         }
@@ -168,12 +198,12 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       resetPassword: async (data: ResetPasswordData): Promise<AuthResult> => {
         try {
           const response = await apiClient.post(userEndpoints.auth.resetPassword, data);
-          return { success: true, message: response.data.message || "Đổi mật khẩu thành công." };
+          return { success: true, message: response.data.message || "Doi mat khau thanh cong." };
         } catch (error: unknown) {
           const e = error as ApiError;
           return {
             success: false,
-            message: e.response?.data?.message || "Mã OTP sai hoặc hết hạn.",
+            message: e.response?.data?.error || e.response?.data?.message || "Ma OTP sai hoac het han.",
             errors: e.response?.data?.errors,
           };
         }
@@ -181,7 +211,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       logout: async (): Promise<void> => {
         try {
-          await apiClient.post(userEndpoints.auth.logout);
+          const refreshToken = storage.auth.getRefreshToken();
+          await apiClient.post(userEndpoints.auth.logout, { refreshToken });
         } catch {
           // Ignore logout errors
         }
@@ -201,7 +232,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             return;
           }
 
-          const response = await apiClient.get(publicEndpoints.users.me);
+          const response = await apiClient.get(userEndpoints.profile.me);
 
           if (response.data.success && response.data.data) {
             const user = response.data.data;
@@ -247,21 +278,28 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       refreshToken: async (): Promise<AuthResult> => {
         try {
-          const response = await apiClient.post(userEndpoints.auth.refresh);
+          const currentRefreshToken = storage.auth.getRefreshToken();
+          const response = await apiClient.post(userEndpoints.auth.refresh, {
+            refreshToken: currentRefreshToken,
+          });
 
           if (response.data.success && response.data.data?.token) {
             setTokenToCookie(response.data.data.token);
-            return { success: true, data: response.data.data, message: response.data.message || "Làm mới token thành công." };
+            storage.auth.setToken(response.data.data.token);
+            if (response.data.data.refreshToken) {
+              storage.auth.setRefreshToken(response.data.data.refreshToken);
+            }
+            return { success: true, data: response.data.data, message: "Lam moi token thanh cong." };
           }
 
-          return { success: false, message: response.data.message || "Làm mới token thất bại" };
+          return { success: false, message: response.data.message || "Lam moi token that bai" };
         } catch (error: unknown) {
           const e = error as ApiError;
           if (e.response?.status === 401) {
             await get().logout();
-            return { success: false, message: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại" };
+            return { success: false, message: "Phien dang nhap da het han, vui long dang nhap lai" };
           }
-          return { success: false, message: "Lỗi khi làm mới token" };
+          return { success: false, message: "Loi khi lam moi token" };
         }
       },
 
@@ -286,7 +324,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             get().clearAuthState();
             return false;
           } catch {
-            // Fallback: dùng data từ localStorage nếu API fail
+            // Fallback: dung data tu localStorage neu API fail
             if (storedUser) {
               set({
                 ...userToState(storedUser),
