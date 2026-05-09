@@ -1,35 +1,12 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import type { SystemConfig } from "@/types/system";
 
 // ===== TYPES =====
 
-export interface SystemConfigGeneral {
-  [key: string]: unknown;
-  site_name?: string;
-  site_description?: string;
-  site_logo?: string | null;
-  site_favicon?: string | null;
-  site_email?: string | null;
-  site_phone?: string | null;
-  site_address?: string | null;
-  site_copyright?: string | null;
-  timezone?: string;
-  locale?: string;
-  currency?: string;
-  contact_channels?: Record<string, unknown>;
-  meta_title?: string | null;
-  meta_description?: string | null;
-  meta_keywords?: string | null;
-  og_title?: string | null;
-  og_description?: string | null;
-  og_image?: string | null;
-  canonical_url?: string | null;
-  google_analytics_id?: string | null;
-  google_search_console?: string | null;
-  facebook_pixel_id?: string | null;
-  twitter_site?: string | null;
-}
+/** Alias for SystemConfig — kept for backward compatibility */
+export type SystemConfigGeneral = SystemConfig;
 
 export interface SystemConfigCacheData {
   data: SystemConfigGeneral;
