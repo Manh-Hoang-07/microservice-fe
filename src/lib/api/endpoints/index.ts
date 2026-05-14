@@ -70,11 +70,13 @@ export const adminEndpoints = {
     contacts: contactEndpoints.admin,
     contentTemplates: contentTemplateEndpoints.admin,
     menus: menuEndpoints.admin,
-    userMenus: { list: menuEndpoints.admin.userList },
+    userMenus: { list: menuEndpoints.user.list },
     enums: systemConfigEndpoints.admin.enums,
     systemConfigs: {
+        general: systemConfigEndpoints.admin.general,
         getByGroup: systemConfigEndpoints.admin.getByGroup,
         update: systemConfigEndpoints.admin.update,
+        updateGeneral: systemConfigEndpoints.admin.updateGeneral,
         updateEmail: systemConfigEndpoints.admin.updateEmail,
     },
     postComments: postCommentEndpoints.admin,
@@ -133,6 +135,7 @@ export const publicEndpoints = {
     comicCategories: comicCategoryEndpoints.public,
     menus: menuEndpoints.public,
     location: locationEndpoints.public,
+    cache: systemConfigEndpoints.cache,
     auth: userEndpoints.auth,
     users: {
         me: userEndpoints.profile.me,

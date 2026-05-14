@@ -9,9 +9,9 @@ interface ContactChannel {
     value: string;
     label: string;
     icon: string | null;
-    url_template: string;
+    urlTemplate: string;
     enabled: boolean;
-    sort_order: number;
+    sortOrder: number;
 }
 
 interface ContactChannelsManagerProps {
@@ -28,7 +28,6 @@ export default function ContactChannelsManager({ value: rawValue = DEFAULT_VALUE
     // Sync internal state when value prop changes (e.g. after API fetch)
     useEffect(() => {
         if (Array.isArray(value)) {
-            // Only update if it's actually different to prevent infinite loops
             if (JSON.stringify(value) !== JSON.stringify(channels)) {
                 setChannels(value);
             }
@@ -48,9 +47,9 @@ export default function ContactChannelsManager({ value: rawValue = DEFAULT_VALUE
             value: "",
             label: "Kênh mới",
             icon: null,
-            url_template: "{value}",
+            urlTemplate: "{value}",
             enabled: true,
-            sort_order: channels.length + 1,
+            sortOrder: channels.length + 1,
         };
         const newChannels = [...channels, newChannel];
         setChannels(newChannels);
@@ -133,8 +132,8 @@ export default function ContactChannelsManager({ value: rawValue = DEFAULT_VALUE
                         <div className="space-y-4">
                             <FormField
                                 label="URL Template"
-                                value={channel.url_template}
-                                onChange={(e) => handleUpdate(index, { url_template: e.target.value })}
+                                value={channel.urlTemplate}
+                                onChange={(e) => handleUpdate(index, { urlTemplate: e.target.value })}
                                 placeholder="tel:{value}"
                                 helpText="Sử dụng {value} để tự động thay thế giá trị trên vào URL"
                             />
@@ -152,8 +151,8 @@ export default function ContactChannelsManager({ value: rawValue = DEFAULT_VALUE
                                         <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">Thứ tự:</label>
                                         <input
                                             type="number"
-                                            value={channel.sort_order}
-                                            onChange={(e) => handleUpdate(index, { sort_order: Number(e.target.value) })}
+                                            value={channel.sortOrder}
+                                            onChange={(e) => handleUpdate(index, { sortOrder: Number(e.target.value) })}
                                             className="w-20 px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                                         />
                                     </div>
@@ -172,6 +171,3 @@ export default function ContactChannelsManager({ value: rawValue = DEFAULT_VALUE
         </div>
     );
 }
-
-
-

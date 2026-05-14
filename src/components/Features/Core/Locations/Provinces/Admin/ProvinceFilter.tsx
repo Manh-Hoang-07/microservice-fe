@@ -28,8 +28,8 @@ export default function ProvinceFilter({
     { value: "name:desc", label: "Tên (Z-A)" },
     { value: "code:asc", label: "Mã (A-Z)" },
     { value: "code:desc", label: "Mã (Z-A)" },
-    { value: "created_at:desc", label: "Ngày tạo (mới nhất)" },
-    { value: "created_at:asc", label: "Ngày tạo (cũ nhất)" },
+    { value: "createdAt:desc", label: "Ngày tạo (mới nhất)" },
+    { value: "createdAt:asc", label: "Ngày tạo (cũ nhất)" },
   ];
 
   const countryOptions = useMemo(
@@ -51,14 +51,14 @@ export default function ProvinceFilter({
       advancedFilters={({ filters, onChange }) => (
         <div className="flex flex-col space-y-3 min-w-[260px]">
           <SelectFilter
-            value={filters["country_id"] || ""}
+            value={filters["countryId"] || ""}
             apiEndpoint={adminEndpoints.location.countries.simple}
             apiParams={{ limit: 1000 }}
             placeholder="Quốc gia"
             labelField="name"
             valueField="id"
             onChange={(value) => {
-              filters["country_id"] = value;
+              filters["countryId"] = value;
               onChange();
             }}
           />

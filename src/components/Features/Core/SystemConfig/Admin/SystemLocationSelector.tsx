@@ -11,28 +11,28 @@ interface SystemLocationSelectorProps {
 }
 
 export default function SystemLocationSelector({
-    value,
-    onChange,
+    value: _value,
+    onChange: _onChange,
     formData = {},
     onUpdate,
 }: SystemLocationSelectorProps) {
-    const countryId = formData?.site_country_id as string | number | null | undefined;
-    const provinceId = formData?.site_province_id as string | number | null | undefined;
-    const wardId = formData?.site_ward_id as string | number | null | undefined;
+    const countryId = formData?.siteCountryId as string | null | undefined;
+    const provinceId = formData?.siteProvinceId as string | null | undefined;
+    const wardId = formData?.siteWardId as string | null | undefined;
 
     const handleCountryChange = (val: string | number | null) => {
-        onUpdate?.("site_country_id", val);
-        onUpdate?.("site_province_id", null);
-        onUpdate?.("site_ward_id", null);
+        onUpdate?.("siteCountryId", val);
+        onUpdate?.("siteProvinceId", null);
+        onUpdate?.("siteWardId", null);
     };
 
     const handleProvinceChange = (val: string | number | null) => {
-        onUpdate?.("site_province_id", val);
-        onUpdate?.("site_ward_id", null);
+        onUpdate?.("siteProvinceId", val);
+        onUpdate?.("siteWardId", null);
     };
 
     const handleWardChange = (val: string | number | null) => {
-        onUpdate?.("site_ward_id", val);
+        onUpdate?.("siteWardId", val);
     };
 
     return (
@@ -55,7 +55,7 @@ export default function SystemLocationSelector({
                     value={provinceId}
                     searchApi={
                         countryId
-                            ? `${adminEndpoints.location.provinces.simple}?filter[country_id]=${countryId}&limit=1000`
+                            ? `${adminEndpoints.location.provinces.simple}?countryId=${countryId}&limit=1000`
                             : undefined
                     }
                     labelField="name"
@@ -72,7 +72,7 @@ export default function SystemLocationSelector({
                     value={wardId}
                     searchApi={
                         provinceId
-                            ? `${adminEndpoints.location.wards.simple}?filter[province_id]=${provinceId}&limit=1000`
+                            ? `${adminEndpoints.location.wards.simple}?provinceId=${provinceId}&limit=1000`
                             : undefined
                     }
                     labelField="name"
@@ -85,4 +85,3 @@ export default function SystemLocationSelector({
         </div>
     );
 }
-

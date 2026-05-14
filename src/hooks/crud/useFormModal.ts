@@ -8,6 +8,8 @@ import { useToastContext } from "@/contexts/ToastContext";
 // ===== TYPES =====
 
 export interface UseFormModalOptions {
+  /** HTTP method cho update: 'put' | 'patch' (default: 'put') */
+  updateMethod?: 'put' | 'patch';
   /** Message khi tạo thành công */
   createSuccessMessage?: string;
   /** Message khi cập nhật thành công */
@@ -78,6 +80,7 @@ export function useFormModal(
   options: UseFormModalOptions = {}
 ): UseFormModalResult {
   const {
+    updateMethod = 'put',
     createSuccessMessage = "Tạo thành công",
     updateSuccessMessage = "Cập nhật thành công",
     fetchErrorMessage = "Không thể tải dữ liệu",
@@ -132,7 +135,7 @@ export function useFormModal(
         if (isEditMode) {
           const { target } = props as EditModeProps;
           if (!target?.updateApi) return;
-          await apiClient.put(target.updateApi, formData);
+          await apiClient[updateMethod](target.updateApi, formData);
           showSuccess(updateSuccessMessage);
         } else {
           const { createApi } = props as CreateModeProps;
@@ -148,7 +151,7 @@ export function useFormModal(
         setLoading(false);
       }
     },
-    [isEditMode, props, showSuccess, showError, createSuccessMessage, updateSuccessMessage, onSuccess]
+    [isEditMode, props, showSuccess, showError, createSuccessMessage, updateSuccessMessage, updateMethod, onSuccess]
   );
 
   return {

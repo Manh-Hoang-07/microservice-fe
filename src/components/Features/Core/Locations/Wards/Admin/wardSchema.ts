@@ -11,7 +11,7 @@ export const wardSchema = z.object({
     .min(1, "Tên phường/xã là bắt buộc")
     .max(191, "Tên không được vượt quá 191 ký tự"),
   type: optionalText(),
-  province_id: z.coerce.number().min(1, "Tỉnh/Thành là bắt buộc"),
+  provinceId: z.string().min(1, "Tỉnh/Thành là bắt buộc"),
   status: statusEnumField,
 });
 

@@ -19,8 +19,8 @@ export default function WardFilter({
     { value: "name:desc", label: "Tên (Z-A)" },
     { value: "code:asc", label: "Mã (A-Z)" },
     { value: "code:desc", label: "Mã (Z-A)" },
-    { value: "created_at:desc", label: "Ngày tạo (mới nhất)" },
-    { value: "created_at:asc", label: "Ngày tạo (cũ nhất)" },
+    { value: "createdAt:desc", label: "Ngày tạo (mới nhất)" },
+    { value: "createdAt:asc", label: "Ngày tạo (cũ nhất)" },
   ];
 
   const statusOptions = useMemo(
@@ -44,14 +44,14 @@ export default function WardFilter({
       advancedFilters={({ filters, onChange }) => (
         <div className="flex flex-col space-y-3 min-w-[260px]">
           <SelectFilter
-            value={filters["province_id"] || ""}
+            value={filters["provinceId"] || ""}
             apiEndpoint={adminEndpoints.location.provinces.simple}
             apiParams={{ limit: 1000 }}
             placeholder="Tỉnh/Thành phố"
             labelField="name"
             valueField="id"
             onChange={(value) => {
-              filters["province_id"] = value;
+              filters["provinceId"] = value;
               onChange();
             }}
           />

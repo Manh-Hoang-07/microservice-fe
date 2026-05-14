@@ -12,11 +12,11 @@ export interface LocationListParams {
 }
 
 export interface ProvinceListParams extends LocationListParams {
-  country_id?: number | string;
+  countryId?: string;
 }
 
 export interface WardListParams extends LocationListParams {
-  province_id?: number | string;
+  provinceId?: string;
 }
 
 export const adminLocationService = {

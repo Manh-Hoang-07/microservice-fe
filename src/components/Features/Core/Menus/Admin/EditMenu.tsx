@@ -10,7 +10,6 @@ export default function EditMenu({
   target,
   statusEnums,
   parentMenus,
-  permissions,
   onSuccess,
   onClose,
 }: EditMenuProps) {
@@ -25,7 +24,6 @@ export default function EditMenu({
       menu={entityData}
       statusEnums={statusEnums}
       parentMenus={parentMenus}
-      permissions={permissions}
       apiErrors={apiErrors}
       loading={loading}
       onSubmit={handleSubmit}

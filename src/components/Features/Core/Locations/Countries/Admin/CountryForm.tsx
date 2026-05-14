@@ -30,9 +30,9 @@ export default function CountryForm({
     defaultValues: {
       code: "",
       name: "",
-      official_name: "",
-      phone_code: "",
-      currency_code: "",
+      officialName: "",
+      phoneCode: "",
+      currencyCode: "",
       status: "active",
     },
   });
@@ -43,18 +43,18 @@ export default function CountryForm({
         reset({
           code: country.code || "",
           name: country.name || "",
-          official_name: country.official_name || "",
-          phone_code: country.phone_code || "",
-          currency_code: country.currency_code || "",
+          officialName: country.officialName || "",
+          phoneCode: country.phoneCode || "",
+          currencyCode: country.currencyCode || "",
           status: (country.status === "active" || country.status === "inactive" ? country.status : "active"),
         });
       } else {
         reset({
           code: "",
           name: "",
-          official_name: "",
-          phone_code: "",
-          currency_code: "",
+          officialName: "",
+          phoneCode: "",
+          currencyCode: "",
           status: "active",
         });
       }
@@ -80,7 +80,7 @@ export default function CountryForm({
     onSubmit?.({
       ...data,
       code: data.code.toUpperCase(),
-      currency_code: data.currency_code?.toUpperCase() || undefined,
+      currencyCode: data.currencyCode?.toUpperCase() || undefined,
     });
   };
 
@@ -116,24 +116,24 @@ export default function CountryForm({
           </div>
 
           <FormField
-            label="Tên đầy đủ (official_name)"
-            {...register("official_name")}
+            label="Tên đầy đủ"
+            {...register("officialName")}
             placeholder="Cộng hòa Xã hội chủ nghĩa Việt Nam"
-            error={errors.official_name?.message}
+            error={errors.officialName?.message}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField
               label="Mã điện thoại"
-              {...register("phone_code")}
+              {...register("phoneCode")}
               placeholder="+84"
-              error={errors.phone_code?.message}
+              error={errors.phoneCode?.message}
             />
             <FormField
               label="Mã tiền tệ"
-              {...register("currency_code")}
+              {...register("currencyCode")}
               placeholder="VND"
-              error={errors.currency_code?.message}
+              error={errors.currencyCode?.message}
             />
             <Controller
               name="status"
@@ -178,5 +178,3 @@ export default function CountryForm({
     </Modal>
   );
 }
-
-

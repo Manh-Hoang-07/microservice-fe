@@ -18,6 +18,7 @@ interface SearchableSelectProps {
   minSearchLength?: number;
   excludeId?: string | number | null;
   labelField?: string;
+  valueField?: string;
   onChange?: (value: string | number | null) => void;
 }
 
@@ -30,6 +31,7 @@ export default function SearchableSelect({
   minSearchLength = 2,
   excludeId,
   labelField = "title",
+  valueField = "id",
   onChange,
 }: SearchableSelectProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -74,7 +76,7 @@ export default function SearchableSelect({
       const allOptions = response.data?.data || [];
 
       let transformedOptions: Option[] = (allOptions as Record<string, unknown>[]).map((option) => ({
-        value: option.id as string | number,
+        value: option[valueField] as string | number,
         label: getLabel(option),
       }));
 
@@ -92,7 +94,7 @@ export default function SearchableSelect({
     } finally {
       setLoading(false);
     }
-  }, [searchApi, excludeId, getLabel]);
+  }, [searchApi, excludeId, getLabel, valueField]);
 
   const debouncedSearch = useMemo(
     () =>
@@ -108,7 +110,7 @@ export default function SearchableSelect({
           const searchResults = response.data?.data || [];
 
           let transformedResults: Option[] = (searchResults as Record<string, unknown>[]).map((option) => ({
-            value: option.id as string | number,
+            value: option[valueField] as string | number,
             label: getLabel(option),
           }));
 
@@ -123,7 +125,7 @@ export default function SearchableSelect({
           setLoading(false);
         }
       }, 300),
-    [searchApi, excludeId, getLabel, minSearchLength]
+    [searchApi, excludeId, getLabel, minSearchLength, valueField]
   );
 
   useEffect(() => {
@@ -215,19 +217,20 @@ export default function SearchableSelect({
       }
 
       // If options are empty (e.g. searchApi changed), we rely on this fetch to get the correct label
+      const fetchQuery = valueField === "id"
+        ? `ids=${value}`
+        : `search=${encodeURIComponent(String(value))}&limit=10`;
       api
-        .get(`${searchApi}?ids=${value}`)
+        .get(`${searchApi}?${fetchQuery}`)
         .then((response) => {
           const data = response.data?.data || [];
-          const filtered = (data as Record<string, unknown>[]).filter((option) => String(option.id) === String(value));
+          const filtered = (data as Record<string, unknown>[]).filter((option) => String(option[valueField]) === String(value));
           if (filtered.length > 0) {
             const option = filtered[0];
-            const newOption = {
-              value: option.id as string | number,
+            setSelectedOption({
+              value: option[valueField] as string | number,
               label: getLabel(option),
-            };
-            setSelectedOption(newOption);
-          } else {
+            });
           }
         })
         .catch((err) => console.error(`[SearchableSelect] Error fetching value:`, err));
@@ -239,7 +242,7 @@ export default function SearchableSelect({
     }
     // We intentionally exclude options/selectedOption from dependency to avoid loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, searchApi, getLabel]);
+  }, [value, searchApi, getLabel, valueField]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

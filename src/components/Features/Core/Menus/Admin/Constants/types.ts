@@ -2,23 +2,22 @@ import { MenuTreeItem } from "@/hooks/data/system/useMenus";
 import { EditTarget } from "@/hooks/crud/useFormModal";
 
 export interface Menu {
-  id: number;
+  id: string;
   code: string;
   name: string;
   path?: string | null;
-  api_path?: string | null;
+  apiPath?: string | null;
   icon?: string | null;
   type?: string;
   status?: string;
-  parent_id?: number | string | null;
-  sort_order?: number;
-  is_public?: boolean;
-  show_in_menu?: boolean;
-  required_permission_id?: number | string | null;
+  parentId?: string | null;
+  sortOrder?: number;
+  isPublic?: boolean;
+  showInMenu?: boolean;
+  requiredPermissionCode?: string | null;
   group?: string;
-  deleted_at?: string;
-  parent?: { id: number; name: string };
-  displayName?: string; // For tree display
+  parent?: { id: string; name: string; code: string };
+  displayName?: string;
 }
 
 export interface AdminMenusProps {
@@ -26,13 +25,11 @@ export interface AdminMenusProps {
   createButtonText?: string;
 }
 
-
 export interface MenuFormProps {
   show: boolean;
   menu?: Menu | null;
   statusEnums?: Array<{ value: string; label: string }>;
   parentMenus?: MenuTreeItem[];
-  permissions?: Array<{ id: number; name: string; code: string }>;
   apiErrors?: Record<string, string | string[]> | null;
   loading?: boolean;
   onSubmit?: (data: Record<string, unknown>) => void;
@@ -44,7 +41,6 @@ export interface CreateMenuProps {
   createApi: string;
   statusEnums?: Array<{ value: string; label: string; name?: string }>;
   parentMenus?: MenuTreeItem[];
-  permissions?: Array<{ id: number; name: string; code: string }>;
   onSuccess?: () => void;
   onClose?: () => void;
 }
@@ -54,7 +50,6 @@ export interface EditMenuProps {
   target: EditTarget | null;
   statusEnums?: Array<{ value: string; label: string; name?: string }>;
   parentMenus?: MenuTreeItem[];
-  permissions?: Array<{ id: number; name: string; code: string }>;
   onSuccess?: () => void;
   onClose?: () => void;
 }

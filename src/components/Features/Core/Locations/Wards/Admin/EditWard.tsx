@@ -19,7 +19,7 @@ export default function EditWard({
 }: EditWardProps) {
   const { entityData, loading, apiErrors, handleSubmit } = useFormModal(
     { mode: "edit", show, target },
-    { updateSuccessMessage: "Cập nhật Phường/Xã thành công", fetchErrorMessage: "Không thể tải thông tin Phường/Xã", onSuccess, onClose }
+    { updateMethod: "patch", updateSuccessMessage: "Cập nhật Phường/Xã thành công", fetchErrorMessage: "Không thể tải thông tin Phường/Xã", onSuccess, onClose }
   );
 
   return (

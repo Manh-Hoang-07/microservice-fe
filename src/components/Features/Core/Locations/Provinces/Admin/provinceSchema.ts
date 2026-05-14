@@ -11,8 +11,8 @@ export const provinceSchema = z.object({
     .min(1, "Tên tỉnh/thành là bắt buộc")
     .max(191, "Tên không được vượt quá 191 ký tự"),
   type: optionalText(),
-  phone_code: optionalText(),
-  country_id: z.coerce.number().min(1, "Quốc gia là bắt buộc"),
+  phoneCode: optionalText(),
+  countryId: z.string().min(1, "Quốc gia là bắt buộc"),
   status: statusEnumField,
 });
 

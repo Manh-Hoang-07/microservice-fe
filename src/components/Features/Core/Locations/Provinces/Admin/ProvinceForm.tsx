@@ -10,12 +10,12 @@ import { adminEndpoints } from "@/lib/api/endpoints";
 import { provinceSchema, type ProvinceFormValues } from "./provinceSchema";
 
 export interface AdminProvinceFormEntity {
-  id?: number;
+  id?: string;
   code?: string;
   name?: string;
   type?: string | null;
-  phone_code?: string | null;
-  country_id?: number;
+  phoneCode?: string | null;
+  countryId?: string;
   status?: string | null;
 }
 
@@ -54,8 +54,8 @@ export default function ProvinceForm({
       code: "",
       name: "",
       type: "Province",
-      phone_code: "",
-      country_id: 1,
+      phoneCode: "",
+      countryId: "",
       status: "active",
     },
   });
@@ -67,17 +67,17 @@ export default function ProvinceForm({
           code: province.code || "",
           name: province.name || "",
           type: province.type || "Province",
-          phone_code: province.phone_code || "",
-          country_id: province.country_id || 1,
+          phoneCode: province.phoneCode || "",
+          countryId: province.countryId || "",
           status: (province.status === "active" || province.status === "inactive" ? province.status : "active"),
         });
       } else {
         reset({
           code: "",
           name: "",
-          type: "Tỉnh",
-          phone_code: "",
-          country_id: 1,
+          type: "Province",
+          phoneCode: "",
+          countryId: "",
           status: "active",
         });
       }
@@ -149,12 +149,12 @@ export default function ProvinceForm({
             />
             <FormField
               label="Mã điện thoại"
-              {...register("phone_code")}
+              {...register("phoneCode")}
               placeholder="28"
-              error={errors.phone_code?.message}
+              error={errors.phoneCode?.message}
             />
             <Controller
-              name="country_id"
+              name="countryId"
               control={control}
               render={({ field }) => (
                 <SingleSelectEnhanced
@@ -163,7 +163,7 @@ export default function ProvinceForm({
                   searchApi={adminEndpoints.location.countries.simple}
                   labelField="name"
                   valueField="id"
-                  error={errors.country_id?.message}
+                  error={errors.countryId?.message}
                   required
                 />
               )}
@@ -212,5 +212,3 @@ export default function ProvinceForm({
     </Modal>
   );
 }
-
-

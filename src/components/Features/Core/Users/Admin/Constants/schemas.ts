@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { emailField, statusField, optionalText, optionalImage, optionalNumber, booleanField } from "@/config/validations/common";
+import { emailField, statusField, optionalText, optionalImage, booleanField } from "@/config/validations/common";
 
 export const userSchema = z.object({
   username: z.string().min(3, "Tên đăng nhập ít nhất 3 ký tự").max(50, "Tên đăng nhập không được vượt quá 50 ký tự"),
@@ -11,14 +11,14 @@ export const userSchema = z.object({
   name: z.string().min(1, "Họ tên là bắt buộc").max(255, "Họ tên không được vượt quá 255 ký tự"),
   gender: optionalText(),
   birthday: optionalText(),
-  country_id: optionalNumber,
-  province_id: optionalNumber,
-  ward_id: optionalNumber,
+  countryId: z.string().optional().nullable(),
+  provinceId: z.string().optional().nullable(),
+  wardId: z.string().optional().nullable(),
   address: z.string().max(255, "Địa chỉ không được vượt quá 255 ký tự").optional().nullable(),
   image: optionalImage,
   about: optionalText(500),
   status: statusField,
-  remove_image: booleanField(),
+  removeImage: booleanField(),
 });
 
 export type UserFormValues = z.infer<typeof userSchema>;

@@ -71,6 +71,12 @@ export default function SystemConfigForm({ group, fields }: SystemConfigFormProp
         return Object.keys(newErrors).length === 0;
     };
 
+    // Fields not accepted by UpdateGeneralConfigDto — strip before submit
+    const NON_PAYLOAD_KEYS = new Set([
+        "id", "createdAt", "updatedAt", "createdUserId", "updatedUserId",
+        "site_location", // virtual field for LocationSelector
+    ]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -81,8 +87,12 @@ export default function SystemConfigForm({ group, fields }: SystemConfigFormProp
 
         setIsSubmitting(true);
 
+        const payload = Object.fromEntries(
+            Object.entries(formData).filter(([key]) => !NON_PAYLOAD_KEYS.has(key))
+        );
+
         try {
-            const response = await api.put(adminEndpoints.systemConfigs.update(group), formData) as { data: any };
+            const response = await api.put(adminEndpoints.systemConfigs.update(group), payload) as { data: any };
             if (response.data.success) {
                 showSuccess("Cập nhật cấu hình thành công");
                 refresh();

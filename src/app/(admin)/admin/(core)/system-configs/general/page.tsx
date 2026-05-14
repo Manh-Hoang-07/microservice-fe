@@ -26,39 +26,39 @@ export const metadata: Metadata = {
 
 export default function AdminSystemConfigGeneralPage() {
   const fields: ConfigField[] = [
-    { key: "site_name", label: "Tên Website", type: "text", placeholder: "Nhập tên website" },
-    { key: "site_description", label: "Mô tả Website", type: "textarea", placeholder: "Nhập mô tả ngắn về website" },
-    { key: "site_logo", label: "Logo", type: "image", description: "Logo hiển thị trên Header và các trang" },
-    { key: "site_favicon", label: "Favicon", type: "image", description: "Biểu tượng hiển thị trên tab trình duyệt" },
-    { key: "site_email", label: "Email liên hệ", type: "email", placeholder: "contact@example.com" },
-    { key: "site_phone", label: "Số điện thoại", type: "text", placeholder: "19001234" },
+    { key: "siteName", label: "Tên Website", type: "text", placeholder: "Nhập tên website" },
+    { key: "siteDescription", label: "Mô tả Website", type: "textarea", placeholder: "Nhập mô tả ngắn về website" },
+    { key: "siteLogo", label: "Logo", type: "image", description: "Logo hiển thị trên Header và các trang" },
+    { key: "siteFavicon", label: "Favicon", type: "image", description: "Biểu tượng hiển thị trên tab trình duyệt" },
+    { key: "siteEmail", label: "Email liên hệ", type: "email", placeholder: "contact@example.com" },
+    { key: "sitePhone", label: "Số điện thoại", type: "text", placeholder: "19001234" },
     {
       key: "site_location",
       label: "Vị trí trụ sở",
       type: "custom",
       component: SystemLocationSelector
     },
-    { key: "site_address", label: "Địa chỉ chi tiết", type: "textarea", placeholder: "Số nhà, tên đường..." },
-    { key: "site_copyright", label: "Thông tin bản quyền", type: "text", placeholder: "© 2024. All rights reserved." },
+    { key: "siteAddress", label: "Địa chỉ chi tiết", type: "textarea", placeholder: "Số nhà, tên đường..." },
+    { key: "siteCopyright", label: "Thông tin bản quyền", type: "text", placeholder: "© 2024. All rights reserved." },
     { key: "timezone", label: "Múi giờ (Timezone)", type: "text", placeholder: "Asia/Ho_Chi_Minh" },
     { key: "locale", label: "Ngôn ngữ (Locale)", type: "text", placeholder: "vi" },
     { key: "currency", label: "Tiền tệ (Currency)", type: "text", placeholder: "VND" },
     {
-      key: "contact_channels",
+      key: "contactChannels",
       label: "Kênh liên hệ (Contact Channels)",
       type: "custom",
       component: ContactChannelsManager
     },
-    { key: "meta_title", label: "SEO Meta Title", type: "text" },
-    { key: "meta_keywords", label: "SEO Meta Keywords", type: "textarea" },
-    { key: "og_title", label: "OG Title (Social)", type: "text" },
-    { key: "og_description", label: "OG Description (Social)", type: "textarea" },
-    { key: "og_image", label: "OG Image (Social)", type: "image" },
-    { key: "canonical_url", label: "Canonical URL", type: "text", placeholder: "https://example.com" },
-    { key: "google_analytics_id", label: "Google Analytics ID", type: "text", placeholder: "UA-XXXXXXXXX-X" },
-    { key: "google_search_console", label: "Google Search Console Key", type: "text" },
-    { key: "facebook_pixel_id", label: "Facebook Pixel ID", type: "text" },
-    { key: "twitter_site", label: "Twitter ID (Site)", type: "text" },
+    { key: "metaTitle", label: "SEO Meta Title", type: "text" },
+    { key: "metaKeywords", label: "SEO Meta Keywords", type: "textarea" },
+    { key: "ogTitle", label: "OG Title (Social)", type: "text" },
+    { key: "ogDescription", label: "OG Description (Social)", type: "textarea" },
+    { key: "ogImage", label: "OG Image (Social)", type: "image" },
+    { key: "canonicalUrl", label: "Canonical URL", type: "text", placeholder: "https://example.com" },
+    { key: "googleAnalyticsId", label: "Google Analytics ID", type: "text", placeholder: "UA-XXXXXXXXX-X" },
+    { key: "googleSearchConsole", label: "Google Search Console Key", type: "text" },
+    { key: "facebookPixelId", label: "Facebook Pixel ID", type: "text" },
+    { key: "twitterSite", label: "Twitter ID (Site)", type: "text" },
   ];
 
   return (
@@ -84,5 +84,3 @@ export default function AdminSystemConfigGeneralPage() {
     </div>
   );
 }
-
-

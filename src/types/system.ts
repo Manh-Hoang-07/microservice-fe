@@ -5,6 +5,8 @@ export interface PaginatedMeta {
   limit: number;
   total: number;
   totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
 }
 
 export interface ApiResponse<T> {
@@ -19,12 +21,12 @@ export interface ApiResponse<T> {
 export interface Country {
   id: string;
   code: string;
-  code_alpha3?: string | null;
+  codeAlpha3?: string | null;
   name: string;
-  official_name?: string | null;
-  phone_code?: string | null;
-  currency_code?: string | null;
-  flag_emoji?: string | null;
+  officialName?: string | null;
+  phoneCode?: string | null;
+  currencyCode?: string | null;
+  flagEmoji?: string | null;
   status: 'active' | 'inactive';
 }
 
@@ -33,17 +35,17 @@ export interface Province {
   code: string;
   name: string;
   type: string;
-  country_id: string;
-  phone_code?: string | null;
+  countryId: string;
+  phoneCode?: string | null;
   status: 'active' | 'inactive';
   note?: string | null;
-  code_bnv?: string | null;
-  code_tms?: string | null;
+  codeBnv?: string | null;
+  codeTms?: string | null;
 }
 
 export interface Ward {
   id: string;
-  province_id: string;
+  provinceId: string;
   code: string;
   name: string;
   type: string;
@@ -54,7 +56,7 @@ export interface Ward {
 
 /** Minimal shape used in navigation trees (public/user menus) */
 export interface Menu {
-  id: number;
+  id: string;
   code: string;
   name: string;
   path: string;
@@ -69,17 +71,19 @@ export interface MenuItem {
   code: string;
   name: string;
   path?: string | null;
-  api_path?: string | null;
+  apiPath?: string | null;
   icon?: string | null;
   type: 'route' | 'group' | 'link';
   status: 'active' | 'inactive';
-  parent_id?: string | null;
-  sort_order: number;
-  is_public: boolean;
-  show_in_menu: boolean;
-  required_permission_code?: string | null;
+  parentId?: string | null;
+  sortOrder: number;
+  isPublic: boolean;
+  showInMenu: boolean;
+  requiredPermissionCode?: string | null;
   group?: string | null;
   children?: MenuItem[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // ─── System Config ───────────────────────────────────────────────────────────
@@ -89,44 +93,42 @@ export interface ContactChannel {
   value: string;
   label?: string;
   icon?: string;
-  url_template?: string;
+  urlTemplate?: string;
   enabled: boolean;
-  sort_order?: number;
+  sortOrder?: number;
 }
 
-/** GET /api/config/general response — snake_case from DB */
+/** GET /api/config/general — camelCase from config-service */
 export interface SystemConfig {
   [key: string]: unknown;
   id?: string;
-  /** Mapped convenience alias for site_name */
-  name?: string;
-  site_name?: string;
-  site_description?: string | null;
-  site_logo?: string | null;
-  site_favicon?: string | null;
-  site_email?: string | null;
-  site_phone?: string | null;
-  site_address?: string | null;
-  site_country_id?: string | null;
-  site_province_id?: string | null;
-  site_ward_id?: string | null;
-  site_copyright?: string | null;
+  siteName?: string;
+  siteDescription?: string | null;
+  siteLogo?: string | null;
+  siteFavicon?: string | null;
+  siteEmail?: string | null;
+  sitePhone?: string | null;
+  siteAddress?: string | null;
+  siteCountryId?: string | null;
+  siteProvinceId?: string | null;
+  siteWardId?: string | null;
+  siteCopyright?: string | null;
   timezone?: string;
   locale?: string;
   currency?: string;
-  contact_channels?: ContactChannel[];
-  meta_title?: string | null;
-  meta_keywords?: string | null;
-  og_title?: string | null;
-  og_description?: string | null;
-  og_image?: string | null;
-  canonical_url?: string | null;
-  google_analytics_id?: string | null;
-  google_search_console?: string | null;
-  facebook_pixel_id?: string | null;
-  twitter_site?: string | null;
-  created_at?: string;
-  updated_at?: string;
+  contactChannels?: ContactChannel[];
+  metaTitle?: string | null;
+  metaKeywords?: string | null;
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogImage?: string | null;
+  canonicalUrl?: string | null;
+  googleAnalyticsId?: string | null;
+  googleSearchConsole?: string | null;
+  facebookPixelId?: string | null;
+  twitterSite?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // ─── Payloads (camelCase — request bodies) ───────────────────────────────────
@@ -141,7 +143,7 @@ export interface ContactChannelPayload {
   sortOrder?: number;
 }
 
-/** PUT /api/config/config/general */
+/** PUT /api/config/admin/general */
 export interface GeneralConfigPayload {
   siteName?: string;
   siteDescription?: string;
@@ -170,7 +172,7 @@ export interface GeneralConfigPayload {
   twitterSite?: string;
 }
 
-/** PUT /api/config/config/email */
+/** PUT /api/config/admin/email */
 export interface EmailConfig {
   smtpHost?: string;
   smtpPort?: number;
@@ -209,10 +211,10 @@ export interface ContentTemplate {
   category: 'render' | 'file';
   type: 'email' | 'telegram' | 'zalo' | 'sms' | 'pdf_generated' | 'file_word' | 'file_excel' | 'file_pdf' | string;
   content?: string;
-  file_path?: string;
+  filePath?: string;
   metadata?: Record<string, unknown>;
   variables?: string[] | Record<string, unknown>;
   status: 'active' | 'inactive';
-  created_at: string;
-  updated_at?: string;
+  createdAt: string;
+  updatedAt?: string;
 }

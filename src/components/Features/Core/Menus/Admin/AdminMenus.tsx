@@ -43,22 +43,12 @@ export default function AdminMenus({ title = "Quản lý menu", createButtonText
   const { getSerialNumber } = ui;
 
   const [parentMenus, setParentMenus] = useState<MenuTreeItem[]>([]);
-  const [permissions, setPermissions] = useState<Array<{ id: number; name: string; code: string }>>([]);
 
   const fetchRelatedData = useCallback(async () => {
     try {
-      const [treeRes, permRes] = await Promise.all([
-        api.get(adminEndpoints.menus.tree),
-        api.get(adminEndpoints.permissions.simple)
-      ]);
-
+      const treeRes = await api.get(adminEndpoints.menus.tree);
       if (treeRes.data?.success || treeRes.data) {
         setParentMenus(treeRes.data.data || treeRes.data || []);
-      }
-
-      if (permRes.data?.success || permRes.data) {
-        const pData = permRes.data.data || permRes.data || [];
-        setPermissions(Array.isArray(pData) ? pData : pData.items || pData.data || []);
       }
     } catch (e) {
       console.error("Failed to fetch related data", e);
@@ -142,10 +132,9 @@ export default function AdminMenus({ title = "Quản lý menu", createButtonText
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badge.className}`}>
                           {badge.label}
                         </span>
-                        {!menu.show_in_menu && (
+                        {!menu.showInMenu && (
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Ẩn trong menu</span>
                         )}
-                        {menu.deleted_at && <div className="text-xs text-red-600">Đã xóa</div>}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -186,7 +175,6 @@ export default function AdminMenus({ title = "Quản lý menu", createButtonText
           createApi={createModal.data.createApi}
           statusEnums={BASIC_STATUS}
           parentMenus={parentMenus}
-          permissions={permissions}
           onClose={createModal.close}
           onSuccess={() => {
             createModal.close();
@@ -202,7 +190,6 @@ export default function AdminMenus({ title = "Quản lý menu", createButtonText
           target={editModal.data}
           statusEnums={BASIC_STATUS}
           parentMenus={parentMenus}
-          permissions={permissions}
           onClose={editModal.close}
           onSuccess={() => {
             editModal.close();

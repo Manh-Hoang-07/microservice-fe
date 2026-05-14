@@ -19,7 +19,7 @@ export default function EditProvince({
 }: EditProvinceProps) {
   const { entityData, loading, apiErrors, handleSubmit } = useFormModal(
     { mode: "edit", show, target },
-    { updateSuccessMessage: "Cập nhật Tỉnh/Thành phố thành công", fetchErrorMessage: "Không thể tải thông tin Tỉnh/Thành phố", onSuccess, onClose }
+    { updateMethod: "patch", updateSuccessMessage: "Cập nhật Tỉnh/Thành phố thành công", fetchErrorMessage: "Không thể tải thông tin Tỉnh/Thành phố", onSuccess, onClose }
   );
 
   return (

@@ -31,8 +31,8 @@ const SingleSelectEnhanced = forwardRef<HTMLSelectElement, SingleSelectEnhancedP
   ({
     value,
     searchApi,
-    labelField = "label",
-    valueField = "value",
+    labelField = "name",
+    valueField = "id",
     label,
     placeholder = "-- Chọn --",
     error,

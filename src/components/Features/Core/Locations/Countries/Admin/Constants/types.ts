@@ -1,12 +1,12 @@
 import { EditTarget } from "@/hooks/crud/useFormModal";
 
 export interface Country {
-  id: number;
+  id: string;
   code?: string;
   name?: string;
-  official_name?: string | null;
-  phone_code?: string | null;
-  currency_code?: string | null;
+  officialName?: string | null;
+  phoneCode?: string | null;
+  currencyCode?: string | null;
   status?: string | null;
   displayName?: string;
 }

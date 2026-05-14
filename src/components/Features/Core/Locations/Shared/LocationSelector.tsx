@@ -1,6 +1,6 @@
 "use client";
 
-import { Controller, Control, FieldValues, UseFormWatch, UseFormSetValue, FieldErrors } from "react-hook-form";
+import { Controller, Control, UseFormWatch, UseFormSetValue, FieldErrors } from "react-hook-form";
 import SingleSelectEnhanced from "@/components/UI/Forms/SingleSelectEnhanced";
 import { adminEndpoints, publicEndpoints } from "@/lib/api/endpoints";
 
@@ -23,16 +23,14 @@ interface LocationSelectorProps {
 export default function LocationSelector({
     control,
     errors,
-    countryFieldName = "country_id",
-    provinceFieldName = "province_id",
-    wardFieldName = "ward_id",
+    countryFieldName = "countryId",
+    provinceFieldName = "provinceId",
+    wardFieldName = "wardId",
     watch,
     setValue,
     isAdmin = false,
     required = false,
 }: LocationSelectorProps) {
-    const endpoints = isAdmin ? adminEndpoints : publicEndpoints;
-
     const countryId = watch(countryFieldName);
     const provinceId = watch(provinceFieldName);
 
@@ -77,7 +75,9 @@ export default function LocationSelector({
                         label="Tỉnh / Thành phố"
                         searchApi={
                             countryId
-                                ? `${isAdmin ? adminEndpoints.location.provinces.simple : publicEndpoints.location.provinces}?filter[country_id]=${countryId}&limit=1000`
+                                ? isAdmin
+                                    ? `${adminEndpoints.location.provinces.simple}?countryId=${countryId}&limit=1000`
+                                    : `${publicEndpoints.location.provincesByCountry(countryId)}?limit=1000`
                                 : undefined
                         }
                         labelField="name"
@@ -103,7 +103,9 @@ export default function LocationSelector({
                         label="Phường / Xã"
                         searchApi={
                             provinceId
-                                ? `${isAdmin ? adminEndpoints.location.wards.simple : publicEndpoints.location.wards}?filter[province_id]=${provinceId}&limit=1000`
+                                ? isAdmin
+                                    ? `${adminEndpoints.location.wards.simple}?provinceId=${provinceId}&limit=1000`
+                                    : `${publicEndpoints.location.wardsByProvince(provinceId)}?limit=1000`
                                 : undefined
                         }
                         labelField="name"

@@ -43,14 +43,14 @@ export default function UserForm({
       name: "",
       gender: "",
       birthday: "",
-      country_id: null,
-      province_id: null,
-      ward_id: null,
+      countryId: null,
+      provinceId: null,
+      wardId: null,
       address: "",
       image: "",
       about: "",
       status: "active",
-      remove_image: false,
+      removeImage: false,
     },
   });
 
@@ -66,14 +66,14 @@ export default function UserForm({
           name: user.name || "",
           gender: user.gender || "",
           birthday: user.birthday || "",
-          country_id: user.country_id || null,
-          province_id: user.province_id || null,
-          ward_id: user.ward_id || null,
+          countryId: user.countryId || null,
+          provinceId: user.provinceId || null,
+          wardId: user.wardId || null,
           address: user.address || "",
           image: user.image || "",
           about: user.about || "",
           status: user.status || "active",
-          remove_image: false,
+          removeImage: false,
         });
       } else {
         reset({
@@ -88,7 +88,7 @@ export default function UserForm({
           image: "",
           about: "",
           status: "active",
-          remove_image: false,
+          removeImage: false,
         });
       }
     }
@@ -253,7 +253,7 @@ export default function UserForm({
                   <ImageUploader
                     value={value}
                     onChange={onChange}
-                    onRemove={() => setValue("remove_image", true)}
+                    onRemove={() => setValue("removeImage", true)}
                   />
                 )}
               />

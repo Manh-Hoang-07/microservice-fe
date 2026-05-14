@@ -1,16 +1,16 @@
 import { EditTarget } from "@/hooks/crud/useFormModal";
 
 export interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
   phone?: string | null;
   name?: string;
   gender?: string;
   birthday?: string;
-  country_id?: number | null;
-  province_id?: number | null;
-  ward_id?: number | null;
+  countryId?: string | null;
+  provinceId?: string | null;
+  wardId?: string | null;
   address?: string;
   image?: string | null;
   about?: string;

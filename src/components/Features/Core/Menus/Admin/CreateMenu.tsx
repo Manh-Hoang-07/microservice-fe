@@ -10,7 +10,6 @@ export default function CreateMenu({
   createApi,
   statusEnums,
   parentMenus,
-  permissions,
   onSuccess,
   onClose,
 }: CreateMenuProps) {
@@ -24,7 +23,6 @@ export default function CreateMenu({
       show={show}
       statusEnums={statusEnums}
       parentMenus={parentMenus}
-      permissions={permissions}
       apiErrors={apiErrors}
       loading={loading}
       onSubmit={handleSubmit}

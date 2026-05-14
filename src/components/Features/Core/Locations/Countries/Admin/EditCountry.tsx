@@ -19,7 +19,7 @@ export default function EditCountry({
 }: EditCountryProps) {
   const { entityData, loading, apiErrors, handleSubmit } = useFormModal(
     { mode: "edit", show, target },
-    { updateSuccessMessage: "Cập nhật quốc gia thành công", fetchErrorMessage: "Không thể tải thông tin quốc gia", onSuccess, onClose }
+    { updateMethod: "patch", updateSuccessMessage: "Cập nhật quốc gia thành công", fetchErrorMessage: "Không thể tải thông tin quốc gia", onSuccess, onClose }
   );
 
   return (

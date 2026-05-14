@@ -1,49 +1,45 @@
 export interface AdminCountry {
-  id: number;
+  id: string;
   code: string;
-  code_alpha3?: string;
+  codeAlpha3?: string;
   name: string;
-  official_name?: string;
-  phone_code?: string;
-  currency_code?: string;
-  flag_emoji?: string;
+  officialName?: string;
+  phoneCode?: string;
+  currencyCode?: string;
+  flagEmoji?: string;
   status?: string;
-  created_user_id?: number | null;
-  updated_user_id?: number | null;
-  created_at?: string;
-  updated_at?: string;
-  deleted_at?: string | null;
+  createdUserId?: string | null;
+  updatedUserId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AdminProvince {
-  id: number;
+  id: string;
   code: string;
   name: string;
   type?: string;
-  phone_code?: string;
-  country_id: number;
+  phoneCode?: string;
+  countryId: string;
   status?: string;
   note?: string | null;
-  code_bnv?: string | null;
-  code_tms?: string | null;
-  created_user_id?: number | null;
-  updated_user_id?: number | null;
-  created_at?: string;
-  updated_at?: string;
-  deleted_at?: string | null;
+  codeBnv?: string | null;
+  codeTms?: string | null;
+  createdUserId?: string | null;
+  updatedUserId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AdminWard {
-  id: number;
-  province_id: number;
+  id: string;
+  provinceId: string;
   name: string;
   type?: string;
   code: string;
   status?: string;
-  created_user_id?: number | null;
-  updated_user_id?: number | null;
-  created_at?: string;
-  updated_at?: string;
-  deleted_at?: string | null;
+  createdUserId?: string | null;
+  updatedUserId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
-

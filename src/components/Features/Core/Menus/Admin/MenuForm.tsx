@@ -36,15 +36,15 @@ export default function MenuForm({
       code: "",
       name: "",
       path: "",
-      api_path: "",
+      apiPath: "",
       icon: "",
       type: "route",
       status: "active",
-      parent_id: null,
-      sort_order: 0,
-      is_public: false,
-      show_in_menu: true,
-      required_permission_id: null,
+      parentId: null,
+      sortOrder: 0,
+      isPublic: false,
+      showInMenu: true,
+      requiredPermissionCode: null,
       group: "admin",
     },
   });
@@ -73,12 +73,12 @@ export default function MenuForm({
     if (menus.length === 0) return [];
     if (!menu?.id) return flattenMenus(menus);
 
-    const excludeIds: (string | number)[] = [menu.id];
+    const excludeIds: string[] = [String(menu.id)];
     const getChildrenIds = (m: MenuTreeItem) => {
       if (m?.children && Array.isArray(m.children) && m.children.length > 0) {
         m.children.forEach((child: MenuTreeItem) => {
           if (child?.id) {
-            excludeIds.push(child.id);
+            excludeIds.push(String(child.id));
             getChildrenIds(child);
           }
         });
@@ -87,13 +87,13 @@ export default function MenuForm({
 
     const findAndExclude = (menusArr: MenuTreeItem[]) => {
       menusArr.forEach((m) => {
-        if (m?.id === menu.id) getChildrenIds(m);
+        if (String(m?.id) === String(menu.id)) getChildrenIds(m);
         else if (m?.children && Array.isArray(m.children)) findAndExclude(m.children);
       });
     };
 
     findAndExclude(menus);
-    return flattenMenus(menus).filter((m) => !excludeIds.includes(m.id));
+    return flattenMenus(menus).filter((m) => !excludeIds.includes(String(m.id)));
   }, [parentMenus, menu, flattenMenus]);
 
   const statusOptions = useMemo(() =>
@@ -102,7 +102,7 @@ export default function MenuForm({
   );
 
   const parentMenuOptions = useMemo(() =>
-    filteredParentMenus.map((m) => ({ value: m.id, label: m.displayName || m.name })),
+    filteredParentMenus.map((m) => ({ value: String(m.id), label: m.displayName || m.name })),
     [filteredParentMenus]
   );
 
@@ -114,15 +114,15 @@ export default function MenuForm({
           code: menu.code || "",
           name: menu.name || "",
           path: menu.path || "",
-          api_path: menu.api_path || "",
+          apiPath: menu.apiPath || "",
           icon: menu.icon || "",
           type: menu.type || "route",
           status: menu.status || "active",
-          parent_id: menu.parent_id ? Number(menu.parent_id) : null,
-          sort_order: menu.sort_order || 0,
-          is_public: !!menu.is_public,
-          show_in_menu: menu.show_in_menu !== false,
-          required_permission_id: menu.required_permission_id ? Number(menu.required_permission_id) : null,
+          parentId: menu.parentId || null,
+          sortOrder: menu.sortOrder || 0,
+          isPublic: !!menu.isPublic,
+          showInMenu: menu.showInMenu !== false,
+          requiredPermissionCode: menu.requiredPermissionCode || null,
           group: menu.group || "admin",
         });
       } else {
@@ -130,15 +130,15 @@ export default function MenuForm({
           code: "",
           name: "",
           path: "",
-          api_path: "",
+          apiPath: "",
           icon: "",
           type: "route",
           status: "active",
-          parent_id: null,
-          sort_order: 0,
-          is_public: false,
-          show_in_menu: true,
-          required_permission_id: null,
+          parentId: null,
+          sortOrder: 0,
+          isPublic: false,
+          showInMenu: true,
+          requiredPermissionCode: null,
           group: "admin",
         });
       }
@@ -196,7 +196,7 @@ export default function MenuForm({
             />
 
             <Controller
-              name="parent_id"
+              name="parentId"
               control={control}
               render={({ field: { value, onChange } }) => (
                 <div className="space-y-1">
@@ -207,7 +207,7 @@ export default function MenuForm({
                     onChange={(val) => onChange(val || null)}
                     placeholder="Chọn menu cha..."
                   />
-                  {errors.parent_id && <p className="text-xs text-red-500">{errors.parent_id.message}</p>}
+                  {errors.parentId && <p className="text-xs text-red-500">{errors.parentId.message}</p>}
                 </div>
               )}
             />
@@ -220,11 +220,7 @@ export default function MenuForm({
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Loại Menu <span className="text-red-500">*</span></label>
                   <SingleSelectEnhanced
                     value={value}
-                    options={[
-                      { value: "route", label: "Route (Nội bộ)" },
-                      { value: "group", label: "Group (Nhóm)" },
-                      { value: "link", label: "Link (Bên ngoài)" },
-                    ]}
+                    searchApi={adminEndpoints.menus.enumTypes}
                     onChange={onChange}
                   />
                 </div>
@@ -240,10 +236,7 @@ export default function MenuForm({
                   </label>
                   <SingleSelectEnhanced
                     value={value}
-                    options={[
-                      { value: "admin", label: "Admin - Quản trị" },
-                      { value: "client", label: "Client - Website" },
-                    ]}
+                    searchApi={adminEndpoints.menus.enumGroups}
                     onChange={onChange}
                   />
                 </div>
@@ -275,9 +268,9 @@ export default function MenuForm({
             />
             <FormField
               label="API Path (Tùy chọn)"
-              {...register("api_path")}
+              {...register("apiPath")}
               placeholder="/api/admin/users"
-              error={errors.api_path?.message}
+              error={errors.apiPath?.message}
             />
             <FormField
               label="Biểu tượng (Icon)"
@@ -288,8 +281,8 @@ export default function MenuForm({
             <FormField
               label="Thứ tự sắp xếp"
               type="number"
-              {...register("sort_order")}
-              error={errors.sort_order?.message}
+              {...register("sortOrder")}
+              error={errors.sortOrder?.message}
             />
           </div>
         </section>
@@ -310,16 +303,17 @@ export default function MenuForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Controller
-              name="required_permission_id"
+              name="requiredPermissionCode"
               control={control}
               render={({ field: { value, onChange } }) => (
                 <div className="space-y-1">
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Permission yêu cầu</label>
                   <SearchableSelect
                     value={value || ""}
-                    searchApi={adminEndpoints.permissions.simple}
+                    searchApi={adminEndpoints.menus.permissions}
                     placeholder="Không yêu cầu (Công khai)"
                     labelField="name"
+                    valueField="code"
                     onChange={(val) => onChange(val || null)}
                   />
                 </div>
@@ -344,11 +338,11 @@ export default function MenuForm({
             <div className="flex items-center space-x-3 p-4 bg-white rounded-xl border border-gray-200">
               <input
                 type="checkbox"
-                id="is_public"
-                {...register("is_public")}
+                id="isPublic"
+                {...register("isPublic")}
                 className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <label htmlFor="is_public" className="text-sm font-bold text-gray-700 cursor-pointer">
+              <label htmlFor="isPublic" className="text-sm font-bold text-gray-700 cursor-pointer">
                 Cho phép truy cập công khai
               </label>
             </div>
@@ -356,11 +350,11 @@ export default function MenuForm({
             <div className="flex items-center space-x-3 p-4 bg-white rounded-xl border border-gray-200">
               <input
                 type="checkbox"
-                id="show_in_menu"
-                {...register("show_in_menu")}
+                id="showInMenu"
+                {...register("showInMenu")}
                 className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <label htmlFor="show_in_menu" className="text-sm font-bold text-gray-700 cursor-pointer">
+              <label htmlFor="showInMenu" className="text-sm font-bold text-gray-700 cursor-pointer">
                 Hiển thị trên thanh Menu
               </label>
             </div>
@@ -388,7 +382,3 @@ export default function MenuForm({
     </Modal>
   );
 }
-
-
-
-

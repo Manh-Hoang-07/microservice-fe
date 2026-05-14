@@ -10,11 +10,11 @@ import { adminEndpoints } from "@/lib/api/endpoints";
 import { wardSchema, type WardFormValues } from "./wardSchema";
 
 export interface AdminWardFormEntity {
-  id?: number;
+  id?: string;
   code?: string;
   name?: string;
   type?: string | null;
-  province_id?: number;
+  provinceId?: string;
   status?: string | null;
 }
 
@@ -54,7 +54,7 @@ export default function WardForm({
       code: "",
       name: "",
       type: "Ward",
-      province_id: 1,
+      provinceId: "",
       status: "active",
     },
   });
@@ -66,15 +66,15 @@ export default function WardForm({
           code: ward.code || "",
           name: ward.name || "",
           type: ward.type || "Ward",
-          province_id: ward.province_id || 1,
+          provinceId: ward.provinceId || "",
           status: (ward.status === "active" || ward.status === "inactive" ? ward.status : "active"),
         });
       } else {
         reset({
           code: "",
           name: "",
-          type: "Phường",
-          province_id: 1,
+          type: "Ward",
+          provinceId: "",
           status: "active",
         });
       }
@@ -145,7 +145,7 @@ export default function WardForm({
               )}
             />
             <Controller
-              name="province_id"
+              name="provinceId"
               control={control}
               render={({ field }) => (
                 <SingleSelectEnhanced
@@ -154,7 +154,7 @@ export default function WardForm({
                   searchApi={adminEndpoints.location.provinces.simple}
                   labelField="name"
                   valueField="id"
-                  error={errors.province_id?.message}
+                  error={errors.provinceId?.message}
                   required
                 />
               )}
@@ -202,5 +202,3 @@ export default function WardForm({
     </Modal>
   );
 }
-
-
