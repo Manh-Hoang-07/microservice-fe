@@ -28,7 +28,7 @@ export default function ChangePasswordForm({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
       password: "",
-      password_confirmation: "",
+      passwordConfirmation: "",
     },
   });
 
@@ -37,7 +37,7 @@ export default function ChangePasswordForm({
     if (show) {
       reset({
         password: "",
-        password_confirmation: "",
+        passwordConfirmation: "",
       });
     }
   }, [show, reset]);
@@ -84,10 +84,10 @@ export default function ChangePasswordForm({
             autocomplete="new-password"
           />
           <FormField
-            {...register("password_confirmation")}
+            {...register("passwordConfirmation")}
             label="Xác nhận mật khẩu mới"
             type="password"
-            error={errors.password_confirmation?.message}
+            error={errors.passwordConfirmation?.message}
             required
             autocomplete="new-password"
           />

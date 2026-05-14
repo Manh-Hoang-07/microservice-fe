@@ -81,7 +81,7 @@ const SingleSelectEnhanced = forwardRef<HTMLSelectElement, SingleSelectEnhancedP
 
         setLocalOptions(
           data.map((item) => ({
-            value: item[valueField] as string | number,
+            value: String(item[valueField] ?? ""),
             label: String(item[labelField] ?? item[valueField] ?? ""),
           }))
         );
@@ -121,13 +121,11 @@ const SingleSelectEnhanced = forwardRef<HTMLSelectElement, SingleSelectEnhancedP
           (opt) => String(opt.value) === String(rawValue)
         );
         if (selectedOption) {
-          onChange?.(selectedOption.value);
+          onChange?.(String(selectedOption.value));
           onSelectOption?.(selectedOption);
         } else {
-          const numValue = Number(rawValue);
-          const finalVal = isNaN(numValue) ? rawValue : numValue;
-          onChange?.(finalVal);
-          onSelectOption?.({ value: finalVal, label: rawValue }); // Fallback
+          onChange?.(rawValue);
+          onSelectOption?.({ value: rawValue, label: rawValue });
         }
       }
     };

@@ -36,22 +36,16 @@ export default function AdminUsers({
   const { items, loading, pagination, filters, hasData } = data;
   const { getSerialNumber } = ui;
 
-  const [statusEnums, setStatusEnums] = useState<Array<{ value: string; id?: string; label: string; name?: string }>>([]);
-  const [genderEnums, setGenderEnums] = useState<Array<{ value: string; label: string; name?: string }>>([]);
+  const [statusEnums, setStatusEnums] = useState<Array<{ id: string; name: string }>>([]);
 
   const passwordModal = useModal<{ passApi: string; user: Record<string, unknown> }>();
   const roleModal = useModal<AssignRoleTarget>();
 
   const loadEnums = async () => {
     try {
-      const statusResponse = await api.get(adminEndpoints.enums.byName("user_status"));
-      if (statusResponse.data?.success) {
-        setStatusEnums(statusResponse.data.data || []);
-      }
-
-      const genderResponse = await api.get(adminEndpoints.enums.byName("gender"));
-      if (genderResponse.data?.success) {
-        setGenderEnums(genderResponse.data.data || []);
+      const statusRes = await api.get(adminEndpoints.users.enumStatuses);
+      if (statusRes.data?.data) {
+        setStatusEnums(statusRes.data.data || []);
       }
     } catch (e) {
       console.error("Failed to load enums", e);
@@ -63,8 +57,8 @@ export default function AdminUsers({
   }, []);
 
   const getStatusLabel = (status?: string): string => {
-    const found = statusEnums.find((s) => s.value === status || s.id === status);
-    return found?.label || found?.name || status || "Không xác định";
+    const found = statusEnums.find((s) => s.id === status);
+    return found?.name || status || "Không xác định";
   };
 
   return (
@@ -81,7 +75,7 @@ export default function AdminUsers({
 
       <UsersFilter
         initialFilters={filters}
-        statusEnums={statusEnums}
+        statusEnums={statusEnums.map(s => ({ value: s.id, label: s.name }))}
         onUpdateFilters={actions.updateFilters}
       />
 
@@ -169,8 +163,6 @@ export default function AdminUsers({
         <CreateUser
           show={createModal.isOpen}
           createApi={createModal.data.createApi}
-          statusEnums={statusEnums}
-          genderEnums={genderEnums}
           onClose={createModal.close}
           onSuccess={() => {
             createModal.close();
@@ -183,8 +175,6 @@ export default function AdminUsers({
         <EditUser
           show={editModal.isOpen}
           target={editModal.data}
-          statusEnums={statusEnums}
-          genderEnums={genderEnums}
           onClose={editModal.close}
           onSuccess={() => {
             editModal.close();

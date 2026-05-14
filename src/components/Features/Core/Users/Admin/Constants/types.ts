@@ -21,8 +21,6 @@ export interface User {
 export interface UserFormProps {
   show: boolean;
   user?: User | null;
-  statusEnums?: Array<{ value: string; label: string; name?: string }>;
-  genderEnums?: Array<{ value: string; label: string; name?: string }>;
   apiErrors?: Record<string, string | string[]> | null;
   loading?: boolean;
   onSubmit?: (data: Record<string, unknown>) => void;
@@ -37,8 +35,6 @@ export interface AdminUsersProps {
 export interface CreateUserProps {
   show: boolean;
   createApi: string;
-  statusEnums?: Array<{ value: string; label: string; name?: string }>;
-  genderEnums?: Array<{ value: string; label: string; name?: string }>;
   onSuccess?: () => void;
   onClose?: () => void;
 }
@@ -46,8 +42,6 @@ export interface CreateUserProps {
 export interface EditUserProps {
   show: boolean;
   target: EditTarget | null;
-  statusEnums?: Array<{ value: string; label: string; name?: string }>;
-  genderEnums?: Array<{ value: string; label: string; name?: string }>;
   onSuccess?: () => void;
   onClose?: () => void;
 }

@@ -31,9 +31,9 @@ const transformUserData = (data: Record<string, unknown>): Record<string, unknow
     address: (profile?.address as string) || "",
     gender: (profile?.gender as string) || "",
     birthday: formatDate(profile?.birthday as string | undefined, "yyyy-MM-dd"),
-    country_id: profile?.country_id ? Number(profile.country_id) : null,
-    province_id: profile?.province_id ? Number(profile.province_id) : null,
-    ward_id: profile?.ward_id ? Number(profile.ward_id) : null,
+    countryId: profile?.countryId != null ? String(profile.countryId) : null,
+    provinceId: profile?.provinceId != null ? String(profile.provinceId) : null,
+    wardId: profile?.wardId != null ? String(profile.wardId) : null,
     image: (data?.image as string) || null,
     about: (profile?.about as string) || "",
     roles: roles,
@@ -44,7 +44,7 @@ const transformUserData = (data: Record<string, unknown>): Record<string, unknow
 const buildUserPayload = (formData: Record<string, unknown>) => {
   const data = formData || {};
   const baseKeys = ["username", "email", "phone", "status", "password", "name", "image"] as const;
-  const profileKeys = ["gender", "birthday", "address", "about", "country_id", "province_id", "ward_id"] as const;
+  const profileKeys = ["gender", "birthday", "address", "about", "countryId", "provinceId", "wardId"] as const;
 
   const payload: Record<string, unknown> = {};
   baseKeys.forEach((key) => {
@@ -73,8 +73,6 @@ const buildUserPayload = (formData: Record<string, unknown>) => {
 export default function EditUser({
   show,
   target,
-  statusEnums,
-  genderEnums,
   onSuccess,
   onClose,
 }: EditUserProps) {
@@ -94,8 +92,6 @@ export default function EditUser({
     <UserForm
       show={show}
       user={userData}
-      statusEnums={statusEnums}
-      genderEnums={genderEnums}
       apiErrors={apiErrors}
       loading={loading}
       onSubmit={handleFormSubmit}

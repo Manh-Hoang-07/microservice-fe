@@ -9,7 +9,7 @@ import { type CreateUserProps } from "./Constants/types";
 const buildUserPayload = (formData: Record<string, unknown>) => {
   const data = formData || {};
   const baseKeys = ["username", "email", "phone", "status", "password", "name", "image"] as const;
-  const profileKeys = ["gender", "birthday", "address", "about", "country_id", "province_id", "ward_id"] as const;
+  const profileKeys = ["gender", "birthday", "address", "about", "countryId", "provinceId", "wardId"] as const;
 
   const payload: Record<string, unknown> = {};
   baseKeys.forEach((key) => {
@@ -37,8 +37,6 @@ const buildUserPayload = (formData: Record<string, unknown>) => {
 export default function CreateUser({
   show,
   createApi,
-  statusEnums,
-  genderEnums,
   onSuccess,
   onClose,
 }: CreateUserProps) {
@@ -55,8 +53,6 @@ export default function CreateUser({
   return (
     <UserForm
       show={show}
-      statusEnums={statusEnums}
-      genderEnums={genderEnums}
       apiErrors={apiErrors}
       loading={loading}
       onSubmit={handleFormSubmit}

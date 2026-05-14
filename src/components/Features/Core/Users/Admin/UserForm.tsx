@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Modal from "@/components/UI/Feedback/Modal";
@@ -10,13 +10,12 @@ import SingleSelectEnhanced from "@/components/UI/Forms/SingleSelectEnhanced";
 import LocationSelector from "@/components/Features/Core/Locations/Shared/LocationSelector";
 import { userSchema, type UserFormValues } from "./Constants/schemas";
 import { type User, type UserFormProps } from "./Constants/types";
+import { adminEndpoints } from "@/lib/api/endpoints";
 
 
 export default function UserForm({
   show,
   user,
-  statusEnums = [],
-  genderEnums = [],
   apiErrors = {},
   loading = false,
   onSubmit,
@@ -104,14 +103,6 @@ export default function UserForm({
     }
   }, [apiErrors, setError]);
 
-  const statusOptions = useMemo(() =>
-    statusEnums.map(opt => ({ value: opt.value, label: opt.label || opt.name || opt.value })),
-    [statusEnums]);
-
-  const genderOptions = useMemo(() =>
-    genderEnums.map(opt => ({ value: opt.value, label: opt.label || opt.name || opt.value })),
-    [genderEnums]);
-
   if (!show) return null;
 
   return (
@@ -172,7 +163,7 @@ export default function UserForm({
                 <SingleSelectEnhanced
                   {...field}
                   label="Trạng thái"
-                  options={statusOptions}
+                  searchApi={adminEndpoints.users.enumStatuses}
                   placeholder="-- Chọn trạng thái --"
                   error={errors.status?.message}
                   required
@@ -211,7 +202,7 @@ export default function UserForm({
                 <SingleSelectEnhanced
                   {...field}
                   label="Giới tính"
-                  options={genderOptions}
+                  searchApi={adminEndpoints.users.enumGenders}
                   placeholder="-- Chọn giới tính --"
                   error={errors.gender?.message}
                 />
