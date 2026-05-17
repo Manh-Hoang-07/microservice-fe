@@ -5,7 +5,6 @@ import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Modal from "@/components/UI/Feedback/Modal";
 import FormField from "@/components/UI/Forms/FormField";
-import SingleSelectEnhanced from "@/components/UI/Forms/SingleSelectEnhanced";
 import api from "@/lib/api/client";
 import { adminEndpoints } from "@/lib/api/endpoints";
 import { groupSchema, type GroupFormValues } from "./Constants/schemas";
@@ -25,8 +24,6 @@ export default function GroupForm({
   onSubmit,
   onCancel,
 }: GroupFormProps) {
-  const [contexts, setContexts] = useState<Array<{ id: number; name: string; type: string }>>([]);
-
   const {
     register,
     handleSubmit,
@@ -39,7 +36,6 @@ export default function GroupForm({
     resolver: zodResolver(groupSchema),
     defaultValues: {
       type: "",
-      context_id: null,
       code: "",
       name: "",
       description: "",
@@ -50,33 +46,12 @@ export default function GroupForm({
 
   const selectedType = useWatch({ control, name: "type" });
 
-  const contextOptions = useMemo(() =>
-    contexts.map((ctx) => ({ value: ctx.id, label: `${ctx.name} (${ctx.type})` })),
-    [contexts]);
-
-  // Load Contexts
-  useEffect(() => {
-    if (show) {
-      const loadContexts = async () => {
-        try {
-          const response = await api.get(`${adminEndpoints.contexts.list}?limit=1000`);
-          const data = response.data?.data || response.data || [];
-          setContexts(Array.isArray(data) ? data : []);
-        } catch (err) {
-          console.error("Failed to load contexts", err);
-        }
-      };
-      loadContexts();
-    }
-  }, [show]);
-
   // Reset/Initialize
   useEffect(() => {
     if (show) {
       if (group) {
         reset({
           type: group.type || "",
-          context_id: group.context_id || null,
           code: group.code || "",
           name: group.name || "",
           description: group.description || "",
@@ -86,7 +61,6 @@ export default function GroupForm({
       } else {
         reset({
           type: "",
-          context_id: null,
           code: "",
           name: "",
           description: "",
@@ -108,12 +82,6 @@ export default function GroupForm({
   }, [apiErrors, setError]);
 
   const handleFormSubmit = (data: GroupFormValues) => {
-    // Basic validation for context_id on creation
-    if (!group && !data.context_id) {
-      setError("context_id", { message: "Context là bắt buộc khi tạo mới" });
-      return;
-    }
-
     let finalMetadata = data.metadata;
 
     // Handle JSON metadata if visible
@@ -166,23 +134,6 @@ export default function GroupForm({
               required
               helpText={group ? "Không thể thay đổi loại group" : ""}
             />
-
-            {!group && (
-              <Controller
-                name="context_id"
-                control={control}
-                render={({ field }) => (
-                  <SingleSelectEnhanced
-                    {...field}
-                    label="Context"
-                    options={contextOptions}
-                    placeholder="-- Chọn context --"
-                    error={errors.context_id?.message}
-                    required
-                  />
-                )}
-              />
-            )}
 
             <FormField
               label="Mã code"

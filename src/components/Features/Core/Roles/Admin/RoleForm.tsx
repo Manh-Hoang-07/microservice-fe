@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Modal from "@/components/UI/Feedback/Modal";
 import FormField from "@/components/UI/Forms/FormField";
 import SearchableSelect from "@/components/UI/Forms/SearchableSelect";
 import SingleSelectEnhanced from "@/components/UI/Forms/SingleSelectEnhanced";
-import MultipleSelect from "@/components/UI/Forms/MultipleSelect";
 import { adminEndpoints } from "@/lib/api/endpoints";
-import api from "@/lib/api/client";
 import { roleSchema, type RoleFormValues } from "./Constants/schemas";
 import { type Role, type RoleFormProps } from "./Constants/types";
 
@@ -23,8 +21,6 @@ export default function RoleForm({
   onSubmit,
   onCancel,
 }: RoleFormProps) {
-  const [contexts, setContexts] = useState<Array<{ id: number; name: string; type: string }>>([]);
-
   const {
     register,
     handleSubmit,
@@ -39,35 +35,14 @@ export default function RoleForm({
       name: "",
       parent_id: null,
       status: "active",
-      context_ids: [],
     },
   });
-
-  const contextOptions = useMemo(() =>
-    contexts.map((ctx) => ({ value: ctx.id, label: `${ctx.name} (${ctx.type})` })),
-    [contexts]);
 
   const statusOptions = useMemo(() =>
     statusEnums.length > 0
       ? statusEnums.map(opt => ({ value: opt.value, label: opt.label || opt.name || opt.value }))
       : [{ value: "active", label: "Hoạt động" }, { value: "inactive", label: "Ngừng hoạt động" }],
     [statusEnums]);
-
-  // Load Contexts
-  useEffect(() => {
-    if (show) {
-      const loadContexts = async () => {
-        try {
-          const response = await api.get(adminEndpoints.contexts.list);
-          const data = response.data?.data || response.data || [];
-          setContexts(Array.isArray(data) ? data : []);
-        } catch (err) {
-          console.error("Failed to load contexts", err);
-        }
-      };
-      loadContexts();
-    }
-  }, [show]);
 
   // Reset/Initialize
   useEffect(() => {
@@ -78,7 +53,6 @@ export default function RoleForm({
           name: role.name || "",
           parent_id: role.parent_id || null,
           status: role.status || "active",
-          context_ids: role.contexts?.map(ctx => ctx.id) || [],
         });
       } else {
         reset({
@@ -86,7 +60,6 @@ export default function RoleForm({
           name: "",
           parent_id: null,
           status: "active",
-          context_ids: [],
         });
       }
     }
@@ -190,37 +163,6 @@ export default function RoleForm({
                 />
               )}
             />
-          </div>
-        </section>
-
-        {/* SECTION: PHẠM VI ÁP DỤNG */}
-        <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
-          <header className="flex items-center space-x-3 mb-2">
-            <div className="p-2 bg-green-100 rounded-lg text-green-600">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 012.5 2.5V14a2 2 0 002 2h1.545M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">Contexts (Phạm vi)</h3>
-              <p className="text-xs text-gray-500">Giới hạn vai trò trong các khu vực cụ thể</p>
-            </div>
-          </header>
-
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Gán cho Contexts</label>
-            <Controller
-              name="context_ids"
-              control={control}
-              render={({ field }) => (
-                <MultipleSelect
-                  {...field}
-                  options={contextOptions}
-                  placeholder="Chọn contexts..."
-                />
-              )}
-            />
-            <p className="text-[10px] text-gray-400 mt-1 italic">* Để trống nếu đây là vai trò dành cho System Admin</p>
           </div>
         </section>
 

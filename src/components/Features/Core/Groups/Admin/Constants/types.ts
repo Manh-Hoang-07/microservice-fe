@@ -3,7 +3,6 @@ import { EditTarget } from "@/hooks/crud/useFormModal";
 export interface Group {
   id: number;
   type?: string;
-  context_id?: number | null;
   code?: string;
   name?: string;
   description?: string;

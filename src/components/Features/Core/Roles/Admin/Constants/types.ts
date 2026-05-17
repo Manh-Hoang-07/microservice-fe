@@ -6,7 +6,6 @@ export interface Role {
   name?: string;
   parent_id?: number | null;
   status?: string;
-  contexts?: Array<{ id: number; name: string; type: string }>;
   displayName?: string;
 }
 

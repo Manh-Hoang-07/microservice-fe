@@ -12,9 +12,10 @@ export const userManagementEndpoints = {
         changeStatus: (id: Id) => `/api/auth/admin/users/${id}/status`,
         enumStatuses: "/api/auth/users/enums/statuses",
         enumGenders: "/api/auth/users/enums/genders",
-        // Role assignment — IAM service (separate)
-        assignRoles: (id: Id) => `/api/admin/users/${id}/roles`,
-        rolesBatch: (id: Id) => `/api/admin/users/${id}/roles/batch`,
-        rolesTree: (id: Id) => `/api/admin/users/${id}/roles/tree`,
+        // Role assignment — IAM service (global, no groupId)
+        roles: (id: Id) => `/api/iam/users/${id}/roles`,
+        assignRole: (id: Id) => `/api/iam/users/${id}/roles`,
+        deleteRole: (id: Id, roleId: Id) => `/api/iam/users/${id}/roles/${roleId}`,
+        rolesSync: (id: Id) => `/api/iam/users/${id}/roles/sync`,
     },
 } as const;
