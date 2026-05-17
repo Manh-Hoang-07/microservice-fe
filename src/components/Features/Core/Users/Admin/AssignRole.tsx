@@ -38,7 +38,7 @@ export default function AssignRole({
     setLoadingRoles(true);
     try {
       const [rolesRes, userRolesRes] = await Promise.all([
-        api.get(`${adminEndpoints.roles.simple || adminEndpoints.roles.list}?limit=1000`),
+        api.get(`${adminEndpoints.roles.list}?limit=1000&status=active`),
         api.get(adminEndpoints.users.roles(target.user.id)),
       ]);
 
@@ -54,7 +54,7 @@ export default function AssignRole({
       const userRolesData: unknown[] = userRolesRes.data?.data ?? userRolesRes.data ?? [];
       const currentIds = new Set(
         (Array.isArray(userRolesData) ? userRolesData : []).map((r: any) =>
-          toStrId(r.id ?? r.role_id ?? r.roleId)
+          toStrId(r.id ?? r.roleId)
         )
       );
       setSelectedIds(currentIds);

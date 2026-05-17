@@ -19,9 +19,9 @@ import { env } from "@/config/env";
 
 export async function generateMetadata(): Promise<Metadata> {
   const systemConfig = await getSystemConfig("general");
-  const siteName = systemConfig?.site_name || env.siteName;
-  const siteDescription = systemConfig?.site_description || env.siteDescription;
-  const favicon = systemConfig?.site_favicon;
+  const siteName = (systemConfig?.siteName || env.siteName) as string;
+  const siteDescription = (systemConfig?.siteDescription || env.siteDescription) as string;
+  const favicon = systemConfig?.siteFavicon as string | undefined;
 
   return {
     title: {
@@ -29,16 +29,16 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${siteName}`,
     },
     description: siteDescription,
-    keywords: systemConfig?.meta_keywords || "",
+    keywords: (systemConfig?.metaKeywords as string) || "",
     icons: {
       icon: favicon || "/favicon.ico",
       shortcut: favicon || "/favicon.ico",
       apple: favicon || "/favicon.ico",
     },
     openGraph: {
-      title: systemConfig?.og_title || siteName,
-      description: systemConfig?.og_description || siteDescription,
-      images: systemConfig?.og_image ? [{ url: systemConfig.og_image }] : [],
+      title: (systemConfig?.ogTitle as string) || siteName,
+      description: (systemConfig?.ogDescription as string) || siteDescription,
+      images: systemConfig?.ogImage ? [{ url: systemConfig.ogImage as string }] : [],
     },
     metadataBase: env.siteUrl ? new URL(env.siteUrl) : undefined,
   };

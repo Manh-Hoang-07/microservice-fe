@@ -1,5 +1,5 @@
 import { api } from "../client";
-import { adminEndpoints } from "../endpoints/admin";
+import { adminEndpoints } from "../endpoints";
 import {
     AdminComicCategory,
     AdminComic,

@@ -21,7 +21,7 @@ export default function ChangePassword({
 
     setApiErrors({});
     try {
-      await api.patch(target.passApi, formData);
+      await api.patch(target.passApi, { password: formData.password });
       showSuccess("Mật khẩu đã được thay đổi thành công");
       onSuccess?.();
     } catch (error: unknown) {

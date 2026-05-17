@@ -10,12 +10,11 @@ export interface Group {
   id: number;
   name: string;
   type?: string;
-  context?: {
-    id: number;
-    type: string;
-    name: string;
-  };
-  roles?: Array<{ id: number; name: string }>;
+  code?: string;
+  description?: string;
+  status?: string;
+  ownerId?: string | number;
+  joinedAt?: string;
 }
 
 export function useGroup() {

@@ -31,26 +31,6 @@ function getRefreshToken(): string | null {
   return storage.auth.getRefreshToken();
 }
 
-/**
- * Get group ID: uu tien localStorage, fallback ve cookie
- */
-function getGroupId(): string | null {
-  if (typeof window === "undefined") return null;
-
-  const storedGroupId = localStorage.getItem("selected_group_id");
-  if (storedGroupId) return storedGroupId;
-
-  const cookies = document.cookie.split(";");
-  for (const cookie of cookies) {
-    const [name, value] = cookie.trim().split("=");
-    if (name === "group_id") {
-      return decodeURIComponent(value || "");
-    }
-  }
-
-  return null;
-}
-
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: env.apiUrl,
@@ -87,12 +67,6 @@ apiClient.interceptors.request.use(
       if (typeof window !== "undefined") {
         sessionStorage.removeItem("auth_redirect");
       }
-    }
-
-    const groupId = getGroupId();
-    if (groupId) {
-      config.headers = config.headers || {};
-      config.headers["X-Group-Id"] = String(groupId);
     }
 
     return config;
@@ -204,7 +178,6 @@ function handleForceLogout() {
   storage.group.clearGroups();
 
   document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  document.cookie = "group_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
   const path = window.location.pathname;
   const isProtectedPage = path.startsWith("/admin") || path.startsWith("/user");

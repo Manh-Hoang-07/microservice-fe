@@ -14,7 +14,12 @@
       "Bash(for f:*)",
       "Bash(do)",
       "Bash(sed -i 's/\\(item as any\\)\\\\.name/item.name/g' \"$f\")",
-      "Bash(echo \"Fixed: $f\")"
+      "Bash(echo \"Fixed: $f\")",
+      "Bash(npx tsc *)",
+      "Bash(git stash *)",
+      "Bash(xargs grep *)",
+      "Bash(grep -i \"tsx\\\\|ts$\")",
+      "Bash(npm run *)"
     ]
   }
 }

@@ -12,11 +12,7 @@ export default function GroupSwitcher({ className = "" }: GroupSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const currentGroupName = currentGroup
-    ? currentGroup.context?.name && currentGroup.context.name !== currentGroup.name
-      ? `${currentGroup.name} (${currentGroup.context.name})`
-      : currentGroup.name
-    : "Chưa chọn group";
+  const currentGroupName = currentGroup ? currentGroup.name : "Chưa chọn nhóm";
 
   const currentGroupId = currentGroup?.id || null;
 
@@ -95,15 +91,7 @@ export default function GroupSwitcher({ className = "" }: GroupSwitcherProps) {
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
             />
           </svg>
-          <span className="text-sm font-medium text-gray-700">
-            {currentGroup.name}
-            {currentGroup.roles && currentGroup.roles.length > 0 && (
-              <span className="text-xs text-gray-500">
-                {" "}
-                ({currentGroup.roles.map((r) => r.name).join(", ")})
-              </span>
-            )}
-          </span>
+          <span className="text-sm font-medium text-gray-700">{currentGroup.name}</span>
         </div>
       </div>
     );
@@ -161,18 +149,7 @@ export default function GroupSwitcher({ className = "" }: GroupSwitcherProps) {
                     >
                       <div className="flex-1">
                         <div className="text-sm font-medium">{group.name}</div>
-                        <div className="text-xs text-gray-500">
-                          {group.context?.name ? (
-                            <span>{group.context.name}</span>
-                          ) : (
-                            <span>{getTypeLabel(group.type)}</span>
-                          )}
-                        </div>
-                        {group.roles && group.roles.length > 0 && (
-                          <div className="text-xs text-gray-400 mt-0.5">
-                            Roles: {group.roles.map((r) => r.name).join(", ")}
-                          </div>
-                        )}
+                        <div className="text-xs text-gray-500">{getTypeLabel(group.type)}</div>
                       </div>
                       {isCurrentGroup(group) && (
                         <svg

@@ -22,7 +22,7 @@ interface FetchOptions extends RequestInit {
 
 /**
  * Server-side Fetch Utility
- * Tự động xử lý Base URL, Cookies (Auth & GroupId) và Caching cho Next.js
+ * Tự động xử lý Base URL, Auth cookie và Caching cho Next.js
  */
 export async function serverFetch<T = any>(
     endpoint: string,
@@ -30,13 +30,11 @@ export async function serverFetch<T = any>(
 ): Promise<{ data: T | null; meta?: Record<string, unknown>; error: string | null }> {
     try {
         let token: string | undefined;
-        let groupId: string | undefined;
 
         if (!options.skipCookies) {
             try {
                 const cookieStore = await cookies();
                 token = cookieStore.get("auth_token")?.value;
-                groupId = cookieStore.get("group_id")?.value;
             } catch (e) {
                 // Outside request context (e.g. static generation)
             }
@@ -50,7 +48,6 @@ export async function serverFetch<T = any>(
         const headers = new Headers(options.headers);
 
         if (token) headers.set("Authorization", `Bearer ${token}`);
-        if (groupId) headers.set("X-Group-Id", groupId);
         if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
 
         const { revalidate, tags, ...restOptions } = options;

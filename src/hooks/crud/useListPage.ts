@@ -29,6 +29,9 @@ export interface UseListPageOptions {
   /** Transform item trước khi hiển thị (optional) */
   transformItem?: (item: ListItem) => ListItem;
 
+  /** Optional: transform query params before sending to BE (e.g., page/limit -> skip/take) */
+  transformParams?: (params: Record<string, string | number>) => Record<string, string | number>;
+
   /** Tùy chọn prefix cho serial number */
   serialNumberPrefix?: string;
 }
@@ -73,7 +76,7 @@ export interface UseListPageResult {
 // ─────────────────────────────────────────────
 
 export function useListPage(options: UseListPageOptions): UseListPageResult {
-  const { endpoint, transformItem } = options;
+  const { endpoint, transformItem, transformParams } = options;
 
   const { showSuccess: toastSuccess, showError: toastError } =
     useToastContext();
@@ -83,6 +86,7 @@ export function useListPage(options: UseListPageOptions): UseListPageResult {
   const composable = useUrlApiSync({
     endpoint,
     transformItem,
+    transformParams,
   });
 
   // ── Serial number ───────────────────────────

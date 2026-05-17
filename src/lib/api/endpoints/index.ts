@@ -28,7 +28,6 @@ import {
     menuEndpoints,
     systemConfigEndpoints,
     contentTemplateEndpoints,
-    contextEndpoints,
     locationEndpoints,
 } from './core';
 import {
@@ -66,7 +65,6 @@ export const adminEndpoints = {
     staff: staffEndpoints.admin,
     banners: bannerEndpoints.admin,
     bannerLocations: bannerLocationEndpoints.admin,
-    contexts: contextEndpoints.admin,
     contacts: contactEndpoints.admin,
     contentTemplates: contentTemplateEndpoints.admin,
     menus: menuEndpoints.admin,

@@ -16,6 +16,7 @@ export function useUrlApiSync<T extends { id: number | string } = { id: number |
   updateEndpoint?: (id: number | string) => string;
   deleteEndpoint?: (id: number | string) => string;
   transformItem?: (item: T) => T;
+  transformParams?: (params: Record<string, string | number>) => Record<string, string | number>;
 }) {
   const {
     endpoint,
@@ -23,10 +24,11 @@ export function useUrlApiSync<T extends { id: number | string } = { id: number |
     updateEndpoint,
     deleteEndpoint,
     transformItem,
+    transformParams,
   } = config;
 
   // Base list composable (URL sync, pagination, filters...)
-  const listComposable = useUrlListSync<T>({ endpoint, transformItem });
+  const listComposable = useUrlListSync<T>({ endpoint, transformItem, transformParams });
 
   const [apiErrors, setApiErrors] = useState<Record<string, string | string[]>>({});
   const [isMutating, setIsMutating] = useState(false);

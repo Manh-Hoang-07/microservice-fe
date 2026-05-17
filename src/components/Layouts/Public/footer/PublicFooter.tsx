@@ -8,16 +8,16 @@ interface PublicFooterProps {
 
 export function PublicFooter({ systemConfig }: PublicFooterProps) {
   const systemInfo = {
-    name: systemConfig?.site_name || "Hệ thống",
+    name: systemConfig?.siteName || "Hệ thống",
     version: (systemConfig as Record<string, unknown>)?.version as string || "1.0.0",
     timezone: systemConfig?.timezone || "Asia/Ho_Chi_Minh",
   };
 
-  const siteCopyright = systemConfig?.site_copyright || null;
-  const siteDescription = systemConfig?.site_description || null;
-  const siteEmail = systemConfig?.site_email || null;
-  const sitePhone = systemConfig?.site_phone || null;
-  const siteAddress = systemConfig?.site_address || null;
+  const siteCopyright = systemConfig?.siteCopyright || null;
+  const siteDescription = systemConfig?.siteDescription || null;
+  const siteEmail = systemConfig?.siteEmail || null;
+  const sitePhone = systemConfig?.sitePhone || null;
+  const siteAddress = systemConfig?.siteAddress || null;
 
   const currentYear = new Date().getFullYear();
 
@@ -29,9 +29,9 @@ export function PublicFooter({ systemConfig }: PublicFooterProps) {
           <div>
             <div className="flex items-center mb-4">
               <div className="relative w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3 overflow-hidden">
-                {systemConfig?.site_logo ? (
+                {systemConfig?.siteLogo ? (
                   <Image
-                    src={systemConfig.site_logo}
+                    src={systemConfig.siteLogo as string}
                     alt={systemInfo.name}
                     fill
                     className="object-cover"

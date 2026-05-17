@@ -5,6 +5,5 @@ export { groupEndpoints } from './groups';
 export { menuEndpoints } from './menus';
 export { systemConfigEndpoints } from './systemConfig';
 export { contentTemplateEndpoints } from './contentTemplates';
-export { contextEndpoints } from './contexts';
 export { locationEndpoints } from './location';
 export { uploadEndpoints } from './uploads';

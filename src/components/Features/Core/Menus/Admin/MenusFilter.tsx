@@ -73,12 +73,12 @@ export default function MenusFilter({
   ];
 
   const sortOptions = [
-    { value: "sort_order:ASC", label: "Thứ tự (tăng dần)" },
-    { value: "sort_order:DESC", label: "Thứ tự (giảm dần)" },
+    { value: "sortOrder:ASC", label: "Thứ tự (tăng dần)" },
+    { value: "sortOrder:DESC", label: "Thứ tự (giảm dần)" },
     { value: "name:ASC", label: "Tên (A-Z)" },
     { value: "name:DESC", label: "Tên (Z-A)" },
-    { value: "created_at:ASC", label: "Ngày tạo (cũ nhất)" },
-    { value: "created_at:DESC", label: "Ngày tạo (mới nhất)" },
+    { value: "createdAt:ASC", label: "Ngày tạo (cũ nhất)" },
+    { value: "createdAt:DESC", label: "Ngày tạo (mới nhất)" },
   ];
 
   return (
@@ -86,7 +86,7 @@ export default function MenusFilter({
       initialFilters={initialFilters}
       sortOptions={sortOptions}
       sortField="sort"
-      searchField="q"
+      searchField="search"
       searchPlaceholder="Tìm theo tên, code..."
       hasAdvancedFilters={true}
       onUpdateFilters={onUpdateFilters}
@@ -95,11 +95,11 @@ export default function MenusFilter({
         <>
           <div>
             <SelectFilter
-              value={filters["parent_id"] || ""}
+              value={filters["parentId"] || ""}
               options={parentMenuOptions}
               placeholder="Chọn menu cha"
               onChange={(value) => {
-                filters["parent_id"] = value;
+                filters["parentId"] = value;
                 onChange();
               }}
             />
@@ -144,11 +144,11 @@ export default function MenusFilter({
             </div>
             <div className="min-w-[150px]">
               <SelectFilter
-                value={filters["show_in_menu"] || ""}
+                value={filters["showInMenu"] || ""}
                 options={showInMenuOptions}
                 placeholder="Hiển thị trong menu"
                 onChange={(value) => {
-                  filters["show_in_menu"] = value;
+                  filters["showInMenu"] = value;
                   onChange();
                 }}
               />

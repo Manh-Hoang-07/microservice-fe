@@ -23,19 +23,19 @@ export default function CountryFilter({
   );
 
   const sortOptions = [
-    { value: "name:asc", label: "Tên (A-Z)" },
-    { value: "name:desc", label: "Tên (Z-A)" },
-    { value: "code:asc", label: "Mã (A-Z)" },
-    { value: "code:desc", label: "Mã (Z-A)" },
-    { value: "created_at:desc", label: "Ngày tạo (mới nhất)" },
-    { value: "created_at:asc", label: "Ngày tạo (cũ nhất)" },
+    { value: "name:ASC", label: "Tên (A-Z)" },
+    { value: "name:DESC", label: "Tên (Z-A)" },
+    { value: "code:ASC", label: "Mã (A-Z)" },
+    { value: "code:DESC", label: "Mã (Z-A)" },
+    { value: "createdAt:DESC", label: "Ngày tạo (mới nhất)" },
+    { value: "createdAt:ASC", label: "Ngày tạo (cũ nhất)" },
   ];
 
   return (
     <AdminFilter
       initialFilters={initialFilters}
       sortOptions={sortOptions}
-      sortField="sort_by"
+      sortField="sort"
       searchField="search"
       searchPlaceholder="Tìm theo tên, mã quốc gia..."
       hasAdvancedFilters={true}

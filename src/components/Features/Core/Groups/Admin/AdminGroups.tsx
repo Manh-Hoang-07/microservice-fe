@@ -42,7 +42,7 @@ export default function AdminGroups({ title = "Quản lý Groups", createButtonT
   const { items, loading, pagination, filters, hasData } = data;
   const { getSerialNumber } = ui;
 
-  const navigateToMembers = (groupId: number) => {
+  const navigateToMembers = (groupId: number | string) => {
     router.push(`/admin/groups/${groupId}/members`);
   };
 

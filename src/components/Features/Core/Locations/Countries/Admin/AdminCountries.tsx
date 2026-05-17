@@ -83,7 +83,7 @@ export default function AdminCountries({
                         {country.name}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                        {country.official_name || "—"}
+                        {country.officialName || "—"}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <span

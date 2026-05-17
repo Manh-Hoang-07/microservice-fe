@@ -31,19 +31,19 @@ export default function RolesFilter({
   }, [statusEnums]);
 
   const sortOptions = [
-    { value: "code:asc", label: "Mã code (A-Z)" },
-    { value: "code:desc", label: "Mã code (Z-A)" },
-    { value: "name:asc", label: "Tên (A-Z)" },
-    { value: "name:desc", label: "Tên (Z-A)" },
-    { value: "created_at:asc", label: "Ngày tạo (cũ nhất)" },
-    { value: "created_at:desc", label: "Ngày tạo (mới nhất)" },
+    { value: "code:ASC", label: "Mã code (A-Z)" },
+    { value: "code:DESC", label: "Mã code (Z-A)" },
+    { value: "name:ASC", label: "Tên (A-Z)" },
+    { value: "name:DESC", label: "Tên (Z-A)" },
+    { value: "createdAt:ASC", label: "Ngày tạo (cũ nhất)" },
+    { value: "createdAt:DESC", label: "Ngày tạo (mới nhất)" },
   ];
 
   return (
     <AdminFilter
       initialFilters={initialFilters}
       sortOptions={sortOptions}
-      sortField="sort_by"
+      sortField="sort"
       searchField="search"
       searchPlaceholder="Tìm theo mã code, tên vai trò..."
       hasAdvancedFilters={true}

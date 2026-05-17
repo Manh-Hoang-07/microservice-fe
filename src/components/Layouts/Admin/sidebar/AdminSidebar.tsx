@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useMenus, MenuTreeItem } from "@/hooks";
-import { initializeUserGroups, getUserGroups, getSelectedGroup, Group } from "@/lib/group/utils";
 import { useAuthStore } from "@/lib/store/authStore";
 import { IconSelector } from "@/components/Shared/Admin/IconSelector";
 
@@ -85,8 +84,6 @@ export function AdminSidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: 
   const { user, logout } = useAuthStore();
 
   const [menus, setMenus] = useState<MenuTreeItem[]>([]);
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
   // Dùng ref để tránh phụ thuộc vào onClose prop — chỉ muốn đóng khi pathname thay đổi
@@ -97,18 +94,11 @@ export function AdminSidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: 
     onCloseRef.current?.();
   }, [pathname]);
 
-  // Initialize groups and menus
+  // Initialize menus
   useEffect(() => {
     const init = async () => {
       try {
         setIsInitializing(true);
-
-        const userGroups = await initializeUserGroups();
-        setGroups(userGroups);
-
-        const group = getSelectedGroup();
-        setSelectedGroup(group);
-
         const userMenus = await getUserMenus();
         setMenus(userMenus || []);
       } catch (error) {
@@ -120,19 +110,6 @@ export function AdminSidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: 
 
     init();
   }, [getUserMenus]);
-
-  const handleGroupChange = useCallback(async (groupId: string) => {
-    localStorage.setItem("selected_group_id", groupId);
-    const group = groups.find(g => String(g.id) === groupId) || null;
-    setSelectedGroup(group);
-
-    try {
-      const userMenus = await getUserMenus();
-      setMenus(userMenus || []);
-    } catch (error) {
-      console.error("Failed to refresh menus:", error);
-    }
-  }, [groups, getUserMenus]);
 
   return (
     <aside className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-gray-200 bg-white transform transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 flex flex-col h-screen shrink-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'
@@ -159,26 +136,6 @@ export function AdminSidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: 
           </svg>
         </button>
       </div>
-
-      {/* Group Selector */}
-      {groups.length > 0 && (
-        <div className="px-4 py-4 border-b border-gray-100 shrink-0">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
-            Selected Group
-          </label>
-          <select
-            className="w-full text-sm border border-gray-200 rounded-md p-2 bg-gray-50 focus:ring-1 focus:ring-primary focus:outline-none"
-            value={selectedGroup?.id || ""}
-            onChange={(e) => handleGroupChange(e.target.value)}
-          >
-            {groups.map(group => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
 
       <div className="flex-1 overflow-y-auto py-6 px-4 scrollbar-thin">
         <div className="mb-4 px-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">

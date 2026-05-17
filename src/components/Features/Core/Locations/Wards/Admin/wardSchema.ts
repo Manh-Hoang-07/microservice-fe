@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { statusEnumField, optionalText } from "@/config/validations/common";
+import { statusEnumField } from "@/config/validations/common";
 
 export const wardSchema = z.object({
   code: z
@@ -9,8 +9,11 @@ export const wardSchema = z.object({
   name: z
     .string()
     .min(1, "Tên phường/xã là bắt buộc")
-    .max(191, "Tên không được vượt quá 191 ký tự"),
-  type: optionalText(),
+    .max(255, "Tên không được vượt quá 255 ký tự"),
+  type: z
+    .string()
+    .min(1, "Loại phường/xã là bắt buộc")
+    .max(50, "Loại tối đa 50 ký tự"),
   provinceId: z.string().min(1, "Tỉnh/Thành là bắt buộc"),
   status: statusEnumField,
 });

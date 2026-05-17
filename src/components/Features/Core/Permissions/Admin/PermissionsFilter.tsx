@@ -29,14 +29,8 @@ export default function PermissionsFilter({
     return options;
   }, [statusEnums]);
 
-  const scopeOptions = [
-    { value: "", label: "Tất cả" },
-    { value: "context", label: "Context" },
-    { value: "system", label: "System" },
-  ];
-
   const sortOptions = [
-    { value: "created_at:desc", label: "Ngày tạo (mới nhất)" },
+    { value: "createdAt:desc", label: "Ngày tạo (mới nhất)" },
     { value: "code:asc", label: "Mã code (A-Z)" },
     { value: "code:desc", label: "Mã code (Z-A)" },
   ];
@@ -51,35 +45,18 @@ export default function PermissionsFilter({
       hasAdvancedFilters={true}
       onUpdateFilters={onUpdateFilters}
       advancedFilters={({ filters, onChange }) => (
-        <>
-          <div className="min-w-[150px]">
-            <SelectFilter
-              value={filters["scope"] || ""}
-              options={scopeOptions}
-              placeholder="Phạm vi"
-              onChange={(value) => {
-                filters["scope"] = value;
-                onChange();
-              }}
-            />
-          </div>
-          <div className="min-w-[150px]">
-            <SelectFilter
-              value={filters["status"] || ""}
-              options={statusOptions}
-              placeholder="Trạng thái"
-              onChange={(value) => {
-                filters["status"] = value;
-                onChange();
-              }}
-            />
-          </div>
-        </>
+        <div className="min-w-[150px]">
+          <SelectFilter
+            value={filters["status"] || ""}
+            options={statusOptions}
+            placeholder="Trạng thái"
+            onChange={(value) => {
+              filters["status"] = value;
+              onChange();
+            }}
+          />
+        </div>
       )}
     />
   );
 }
-
-
-
-

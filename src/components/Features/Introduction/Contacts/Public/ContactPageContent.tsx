@@ -28,7 +28,7 @@ export default function ContactPageContent({ config }: ContactPageContentProps) 
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Địa chỉ</h3>
               <p className="text-gray-600 text-sm whitespace-pre-line">
-                {config.site_address || "Tầng 12, Tòa nhà Bitexco\nSố 2 Hải Triều, Quận 1\nTP. Hồ Chí Minh, Việt Nam"}
+                {config.siteAddress || "Tầng 12, Tòa nhà Bitexco\nSố 2 Hải Triều, Quận 1\nTP. Hồ Chí Minh, Việt Nam"}
               </p>
             </div>
 
@@ -41,7 +41,7 @@ export default function ContactPageContent({ config }: ContactPageContentProps) 
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Email</h3>
               <p className="text-gray-600 text-sm">
-                {config.site_email || "contact@shoponline.com"}
+                {config.siteEmail || "contact@shoponline.com"}
               </p>
             </div>
 
@@ -54,7 +54,7 @@ export default function ContactPageContent({ config }: ContactPageContentProps) 
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Điện thoại</h3>
               <p className="text-gray-600 text-sm">
-                {config.site_phone || "1900 1234"}
+                {config.sitePhone || "1900 1234"}
               </p>
             </div>
           </div>

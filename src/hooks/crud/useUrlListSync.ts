@@ -12,8 +12,10 @@ import { normalizeListWithMeta, normalizePaginationMeta } from "@/lib/api/respon
 export function useUrlListSync<T extends { id: number | string } = { id: number | string } & Record<string, unknown>>(config: {
   endpoint: string;
   transformItem?: (item: T) => T;
+  /** Optional: transform query params before sending to BE (e.g., page/limit -> skip/take) */
+  transformParams?: (params: Record<string, string | number>) => Record<string, string | number>;
 }) {
-  const { endpoint, transformItem } = config;
+  const { endpoint, transformItem, transformParams } = config;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -52,7 +54,8 @@ export function useUrlListSync<T extends { id: number | string } = { id: number 
     setError(null);
 
     try {
-      const params = getUrlParams();
+      const urlParams = getUrlParams();
+      const params = transformParams ? transformParams(urlParams) : urlParams;
       const response = await apiClient.get(endpoint, { params });
 
       // Normalize response using centralized utilities
@@ -83,7 +86,7 @@ export function useUrlListSync<T extends { id: number | string } = { id: number 
     } finally {
       setLoading(false);
     }
-  }, [endpoint, getUrlParams, transformItem]);
+  }, [endpoint, getUrlParams, transformItem, transformParams]);
 
   // Fetch on mount and when searchParams change
   useEffect(() => {

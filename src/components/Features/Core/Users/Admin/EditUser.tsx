@@ -12,15 +12,6 @@ const transformUserData = (data: Record<string, unknown>): Record<string, unknow
 
   const profile = (data?.profile as Record<string, unknown>) || {};
 
-  let roles: Record<string, unknown>[] = [];
-  if (data?.user_role_assignments && Array.isArray(data.user_role_assignments)) {
-    roles = (data.user_role_assignments as Record<string, unknown>[])
-      .map((assignment: Record<string, unknown>) => assignment.role as Record<string, unknown>)
-      .filter((role: Record<string, unknown>) => role != null);
-  } else if (Array.isArray(data?.roles)) {
-    roles = data.roles as Record<string, unknown>[];
-  }
-
   return {
     id: data?.id,
     username: (data?.username as string) || "",
@@ -36,8 +27,6 @@ const transformUserData = (data: Record<string, unknown>): Record<string, unknow
     wardId: profile?.wardId != null ? String(profile.wardId) : null,
     image: (data?.image as string) || null,
     about: (profile?.about as string) || "",
-    roles: roles,
-    role_ids: roles.filter((r) => r != null).map((r) => r?.id).filter(Boolean),
   };
 };
 

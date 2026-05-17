@@ -33,7 +33,7 @@ export default function RoleForm({
     defaultValues: {
       code: "",
       name: "",
-      parent_id: null,
+      parentId: "",
       status: "active",
     },
   });
@@ -51,14 +51,14 @@ export default function RoleForm({
         reset({
           code: role.code || "",
           name: role.name || "",
-          parent_id: role.parent_id || null,
+          parentId: role.parentId != null ? String(role.parentId) : "",
           status: role.status || "active",
         });
       } else {
         reset({
           code: "",
           name: "",
-          parent_id: null,
+          parentId: "",
           status: "active",
         });
       }
@@ -81,7 +81,19 @@ export default function RoleForm({
 
   return (
     <Modal show={show} onClose={onCancel || (() => { })} title={formTitle} size="xl" loading={loading || isSubmitting}>
-      <form onSubmit={handleSubmit((data) => onSubmit?.(data))} className="space-y-8 p-1">
+      <form onSubmit={handleSubmit((data) => {
+        const isEdit = !!role;
+        const payload: Record<string, unknown> = {
+          name: data.name || undefined,
+          parentId: data.parentId ? String(data.parentId) : null,
+        };
+        if (isEdit) {
+          payload.status = data.status;
+        } else {
+          payload.code = data.code;
+        }
+        onSubmit?.(payload);
+      })} className="space-y-8 p-1">
 
         {/* SECTION: THÔNG TIN VAI TRÒ */}
         <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
@@ -133,18 +145,19 @@ export default function RoleForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Controller
-              name="parent_id"
+              name="parentId"
               control={control}
               render={({ field }) => (
                 <div className="space-y-1.5">
                   <label className="text-sm font-semibold text-gray-700">Vai trò cha</label>
                   <SearchableSelect
-                    {...field}
+                    value={field.value ?? null}
+                    onChange={(value) => field.onChange(value == null ? "" : String(value))}
                     searchApi={adminEndpoints.roles.list}
                     placeholder="Tìm kiếm vai trò cha..."
                     excludeId={role?.id}
                     labelField="name"
-                    error={errors.parent_id?.message}
+                    error={errors.parentId?.message}
                   />
                 </div>
               )}

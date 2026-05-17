@@ -1,10 +1,10 @@
 import { EditTarget } from "@/hooks/crud/useFormModal";
 
 export interface Role {
-  id: number;
+  id: number | string;
   code?: string;
   name?: string;
-  parent_id?: number | null;
+  parentId?: string | number | null;
   status?: string;
   displayName?: string;
 }
@@ -42,7 +42,7 @@ export interface EditRoleProps {
 
 export interface AssignPermissionsProps {
   show: boolean;
-  role?: Record<string, any>;
+  role?: Record<string, unknown>;
   onPermissionsAssigned?: () => void;
   onClose?: () => void;
 }

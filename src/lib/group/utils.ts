@@ -10,15 +10,9 @@ export interface Group {
   type: string;
   description?: string;
   status?: string;
-  context_id?: number;
-  owner_id?: number;
-  metadata?: Record<string, unknown>;
-  joined_at?: string;
-  roles?: Array<{
-    id: number;
-    code: string;
-    name: string;
-  }>;
+  ownerId?: string | number;
+  metadata?: Record<string, unknown> | null;
+  joinedAt?: string;
 }
 
 /**

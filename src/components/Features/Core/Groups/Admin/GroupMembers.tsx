@@ -5,93 +5,92 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api/client";
 import { adminEndpoints } from "@/lib/api/endpoints";
 import { useToastContext } from "@/contexts/ToastContext";
+import { normalizeDetailResponse, normalizeListResponse } from "@/lib/api/response-normalizer";
 import SkeletonLoader from "@/components/UI/Feedback/SkeletonLoader";
 import ConfirmModal from "@/components/UI/Feedback/ConfirmModal";
 import Actions from "@/components/UI/DataDisplay/Actions";
 import AddMemberModal from "./AddMemberModal";
-import EditMemberRolesModal from "./EditMemberRolesModal";
 import useModal from "@/hooks/ui-ux/useModal";
 import { useCrudList } from "@/hooks";
-import MemberFilter from "./MemberFilter";
 import Pagination from "@/components/UI/DataDisplay/Pagination";
+import { type Group } from "./Constants/types";
 
-interface GroupMember {
-  user_id: number;
-  user?: {
-    id: number;
-    username: string;
-    email: string;
-  };
-  role_id?: number;
-  role?: {
-    id: number;
-    code: string;
-    name: string;
-  };
-  roles?: Array<{
-    id: number;
-    code: string;
-    name: string;
-  }>;
+interface RawMember {
+  userId?: string | number;
+  groupId?: string | number;
+  joinedAt?: string;
 }
 
-interface Group {
-  id: number;
+interface NormalizedMember {
+  id: string;
+  userId: string;
+  joinedAt: string | null;
+}
+
+interface SimpleUser {
+  id: string | number;
   name?: string;
-  code: string;
-  owner_id?: number;
+  email?: string;
+  image?: string | null;
+  status?: string;
 }
 
 interface GroupMembersProps {
-  groupId: number;
+  groupId: number | string;
 }
 
 export default function GroupMembers({ groupId }: GroupMembersProps) {
   const router = useRouter();
-  const [group, setGroup] = useState<Group | null>(null);
   const { showError } = useToastContext();
+  const [group, setGroup] = useState<Group | null>(null);
+  const [userMap, setUserMap] = useState<Record<string, SimpleUser>>({});
 
   const endpoint = useMemo(() => adminEndpoints.groups.members.list(groupId), [groupId]);
-  
-  const transformItem = useCallback((item: any) => ({
-      ...item,
-      id: item.user_id,
-  }), []);
+
+  const transformItem = useCallback((item: unknown): NormalizedMember => {
+    const m = item as RawMember;
+    const uid = m.userId ?? "";
+    return {
+      id: String(uid),
+      userId: String(uid),
+      joinedAt: m.joinedAt ?? null,
+    };
+  }, []);
 
   const {
-      data,
-      actions,
-      ui,
-      deleteModal,
-      handleDeleteConfirm,
-      openDelete
+    data,
+    actions,
+    ui,
+    deleteModal,
+    handleDeleteConfirm,
+    openDelete,
   } = useCrudList({
-      endpoint,
-      deleteSuccessMessage: "Thành viên đã được xóa khỏi nhóm thành công",
-      transformItem,
+    endpoint,
+    deleteSuccessMessage: "Đã xóa thành viên khỏi nhóm",
+    transformItem,
   });
 
-  const { items, loading, pagination, filters, hasData } = data;
+  const { items: rawItems, loading, pagination, hasData } = data;
+  const items = rawItems as unknown as NormalizedMember[];
   const { getSerialNumber } = ui;
 
   const addMemberModal = useModal();
-  const editRolesModal = useModal<GroupMember>();
 
+  // Load group info
   useEffect(() => {
     const loadGroup = async () => {
       try {
         const response = await api.get(adminEndpoints.groups.show(groupId));
-        const groupData = response.data?.data || response.data;
+        const groupData = normalizeDetailResponse<Group>(response.data);
         if (!groupData) {
-          showError("Không tìm thấy group");
+          showError("Không tìm thấy nhóm");
           router.push("/admin/groups");
         } else {
           setGroup(groupData);
         }
-      } catch (error) {
-        // Only push if we are still on this page
-        if (window.location.pathname.includes(`/admin/groups/${groupId}/members`)) {
-          showError("Không thể tải thông tin group");
+      } catch {
+        if (typeof window !== "undefined" && window.location.pathname.includes(`/admin/groups/${groupId}/members`)) {
+          showError("Không thể tải thông tin nhóm");
           router.push("/admin/groups");
         }
       }
@@ -100,18 +99,36 @@ export default function GroupMembers({ groupId }: GroupMembersProps) {
     loadGroup();
   }, [groupId, router, showError]);
 
-  const getMemberRoles = (member: GroupMember) => {
-    if (member.roles && Array.isArray(member.roles)) {
-      return member.roles;
-    }
-    if (member.role) {
-      return [member.role];
-    }
-    return [];
-  };
+  // Load user info to map userId -> {name, email}
+  useEffect(() => {
+    if (items.length === 0) return;
+    const unknownIds = items.filter((m) => !userMap[m.userId]).map((m) => m.userId);
+    if (unknownIds.length === 0) return;
 
-  const isOwner = (member: GroupMember): boolean => {
-    return group ? member.user_id === group.owner_id : false;
+    let cancelled = false;
+    const loadUsers = async () => {
+      try {
+        const response = await api.get(adminEndpoints.users.simple);
+        const users = normalizeListResponse<SimpleUser>(response.data);
+        if (cancelled) return;
+        const next: Record<string, SimpleUser> = { ...userMap };
+        users.forEach((u) => {
+          next[String(u.id)] = u;
+        });
+        setUserMap(next);
+      } catch {
+        // Silent — fallback to userId display
+      }
+    };
+    void loadUsers();
+    return () => {
+      cancelled = true;
+    };
+  }, [items, userMap]);
+
+  const isOwner = (userId: string): boolean => {
+    if (!group?.ownerId) return false;
+    return String(group.ownerId) === userId;
   };
 
   const handleMemberAdded = () => {
@@ -119,28 +136,22 @@ export default function GroupMembers({ groupId }: GroupMembersProps) {
     actions.refresh();
   };
 
-  const handleRolesUpdated = () => {
-    editRolesModal.close();
-    actions.refresh();
-  };
-
-  const handleDeleteMember = (member: GroupMember) => {
-      // Mock CrudEndpoints as useCrudList expects the full object
-      const mockEndpoints = {
-          list: "",
-          create: "",
-          show: (id: string | number) => "",
-          update: (id: string | number) => "",
-          delete: (id: string | number) => adminEndpoints.groups.members.remove(groupId, id)
-      };
-      openDelete(member, mockEndpoints, "user.username");
+  const handleDeleteMember = (member: NormalizedMember) => {
+    const mockEndpoints = {
+      list: "",
+      create: "",
+      show: (_id: string | number) => "",
+      update: (_id: string | number) => "",
+      delete: (id: string | number) => adminEndpoints.groups.members.remove(groupId, id),
+    };
+    openDelete(member, mockEndpoints, "userId");
   };
 
   return (
     <div className="admin-group-members">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 font-primary">Quản lý Thành viên</h1>
+          <h1 className="text-2xl font-bold text-gray-900 font-primary">Quản lý thành viên</h1>
           {group && (
             <div className="flex items-center gap-2 mt-1">
               <span className="text-sm text-gray-500">Nhóm:</span>
@@ -162,11 +173,6 @@ export default function GroupMembers({ groupId }: GroupMembersProps) {
         </button>
       </div>
 
-      <MemberFilter
-          initialFilters={filters}
-          onUpdateFilters={actions.updateFilters}
-      />
-
       <div className="bg-white shadow-md rounded-lg overflow-hidden mt-6">
         {loading ? (
           <SkeletonLoader type="table" rows={10} columns={5} />
@@ -176,62 +182,58 @@ export default function GroupMembers({ groupId }: GroupMembersProps) {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">STT</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tên người dùng</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tên</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Vai trò</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tham gia</th>
                   <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {items.map((member: any, index: number) => (
-                  <tr key={member.user_id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getSerialNumber(index)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs mr-3">
-                          {member.user?.username?.charAt(0).toUpperCase() || "U"}
+                {items.map((member, index) => {
+                  const u = userMap[member.userId];
+                  const displayName = u?.name || `User #${member.userId}`;
+                  const owner = isOwner(member.userId);
+                  return (
+                    <tr key={member.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getSerialNumber(index)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <code className="text-xs px-2 py-1 bg-gray-100 rounded">{member.userId}</code>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs mr-3">
+                            {(u?.name || "U").charAt(0).toUpperCase()}
+                          </div>
+                          <span className="text-sm font-medium text-gray-900">{displayName}</span>
+                          {owner && (
+                            <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 rounded uppercase">
+                              Chủ nhóm
+                            </span>
+                          )}
                         </div>
-                        <span className="text-sm font-medium text-gray-900">{member.user?.username || "N/A"}</span>
-                        {isOwner(member) && (
-                          <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 rounded uppercase">Chủ nhóm</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{member.user?.email || "N/A"}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-wrap gap-1">
-                        {getMemberRoles(member).map((role: any) => (
-                          <span key={role.id} className="px-2 py-0.5 text-[11px] font-bold rounded bg-blue-100 text-blue-800 uppercase">
-                            {role.name || role.code}
-                          </span>
-                        ))}
-                        {getMemberRoles(member).length === 0 && <span className="text-xs text-gray-400 italic">Chưa có vai trò</span>}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <Actions
-                        item={member}
-                        showView={false}
-                        showEdit={false}
-                        showDelete={!isOwner(member)}
-                        deleteTitle="Xóa thành viên"
-                        onDelete={() => handleDeleteMember(member)}
-                        additionalActions={[
-                          {
-                            label: "Sửa vai trò",
-                            icon: "key",
-                            action: () => editRolesModal.open(member),
-                            className: "text-green-600 hover:text-green-700",
-                          },
-                        ]}
-                      />
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{u?.email || "—"}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {member.joinedAt ? new Date(member.joinedAt).toLocaleDateString("vi-VN") : "—"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <Actions
+                          item={member}
+                          showView={false}
+                          showEdit={false}
+                          showDelete={!owner}
+                          deleteTitle="Xóa thành viên"
+                          onDelete={() => handleDeleteMember(member)}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
                 {items.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500 italic">
-                      {loading ? "Đang tải dữ liệu..." : "Chưa có thành viên nào thỏa mãn bộ lọc"}
+                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500 italic">
+                      {loading ? "Đang tải dữ liệu..." : "Chưa có thành viên trong nhóm"}
                     </td>
                   </tr>
                 )}
@@ -242,14 +244,14 @@ export default function GroupMembers({ groupId }: GroupMembersProps) {
       </div>
 
       {hasData && (
-          <div className="mt-6">
-              <Pagination
-                  currentPage={pagination.page}
-                  totalPages={pagination.totalPages}
-                  totalItems={pagination.totalItems}
-                  onPageChange={actions.changePage}
-              />
-          </div>
+        <div className="mt-6">
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.totalItems}
+            onPageChange={actions.changePage}
+          />
+        </div>
       )}
 
       {addMemberModal.isOpen && (
@@ -261,21 +263,11 @@ export default function GroupMembers({ groupId }: GroupMembersProps) {
         />
       )}
 
-      {editRolesModal.isOpen && editRolesModal.data && (
-        <EditMemberRolesModal
-          show={editRolesModal.isOpen}
-          groupId={groupId}
-          member={editRolesModal.data}
-          onClose={editRolesModal.close}
-          onRolesUpdated={handleRolesUpdated}
-        />
-      )}
-
       {deleteModal.isOpen && deleteModal.data && (
         <ConfirmModal
           show={deleteModal.isOpen}
           title="Xác nhận xóa"
-          message={`Bạn có chắc chắn muốn xóa thành viên "${deleteModal.data.displayName || ""}" khỏi nhóm?`}
+          message={`Bạn có chắc chắn muốn xóa thành viên này khỏi nhóm?`}
           onClose={deleteModal.close}
           onConfirm={handleDeleteConfirm}
           confirmText="Xác nhận xóa"
@@ -284,7 +276,3 @@ export default function GroupMembers({ groupId }: GroupMembersProps) {
     </div>
   );
 }
-
-
-
-

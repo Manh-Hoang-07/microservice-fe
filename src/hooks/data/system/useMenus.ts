@@ -8,15 +8,16 @@ export interface MenuTreeItem {
   name: string;
   code: string;
   path?: string | null;
-  api_path?: string | null;
+  apiPath?: string | null;
   icon?: string | null;
   type?: string;
   status?: string;
-  parent_id?: number | string | null;
-  sort_order?: number;
-  is_public?: boolean;
-  show_in_menu?: boolean;
-  required_permission_id?: number | string | null;
+  parentId?: number | string | null;
+  sortOrder?: number;
+  isPublic?: boolean;
+  showInMenu?: boolean;
+  requiredPermissionCode?: string | null;
+  group?: string;
   children?: MenuTreeItem[];
 }
 
@@ -39,7 +40,7 @@ export function useMenus() {
     }
   }, []);
 
-  const getUserMenus = useCallback(async (params?: { include_inactive?: boolean; flatten?: boolean }): Promise<MenuTreeItem[]> => {
+  const getUserMenus = useCallback(async (params?: { flatten?: boolean }): Promise<MenuTreeItem[]> => {
     setLoading(true);
     setError(null);
     try {

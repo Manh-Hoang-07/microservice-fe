@@ -5,9 +5,11 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Modal from "@/components/UI/Feedback/Modal";
 import FormField from "@/components/UI/Forms/FormField";
+import SearchableSelect from "@/components/UI/Forms/SearchableSelect";
 import SingleSelectEnhanced from "@/components/UI/Forms/SingleSelectEnhanced";
+import { adminEndpoints } from "@/lib/api/endpoints";
 import { permissionSchema, type PermissionFormValues } from "./Constants/schemas";
-import { type Permission, type PermissionFormProps } from "./Constants/types";
+import { type PermissionFormProps } from "./Constants/types";
 
 const getBasicStatusArray = (): Array<{ value: string; label: string; name?: string }> => [
   { value: "active", label: "Hoạt động" },
@@ -36,8 +38,7 @@ export default function PermissionForm({
     defaultValues: {
       code: "",
       name: "",
-      scope: "context",
-      parent_id: null,
+      parentId: "",
       status: "active",
     },
   });
@@ -50,11 +51,6 @@ export default function PermissionForm({
     }));
   }, [statusEnums]);
 
-  const scopeOptions = [
-    { value: "context", label: "Context (Dùng trong Shop, Group, ...)" },
-    { value: "system", label: "System (Chỉ dùng trong Hệ thống)" },
-  ];
-
   // Reset/Initialize
   useEffect(() => {
     if (show) {
@@ -62,16 +58,14 @@ export default function PermissionForm({
         reset({
           code: permission.code || "",
           name: permission.name || "",
-          scope: permission.scope || "context",
-          parent_id: permission.parent_id || null,
+          parentId: permission.parentId != null ? String(permission.parentId) : "",
           status: permission.status || "active",
         });
       } else {
         reset({
           code: "",
           name: "",
-          scope: "context",
-          parent_id: null,
+          parentId: "",
           status: "active",
         });
       }
@@ -83,18 +77,30 @@ export default function PermissionForm({
     if (apiErrors) {
       Object.keys(apiErrors).forEach((key) => {
         const message = Array.isArray(apiErrors[key]) ? apiErrors[key][0] : String(apiErrors[key]);
-        setError(key as any, { message });
+        setError(key as keyof PermissionFormValues, { message });
       });
     }
   }, [apiErrors, setError]);
 
-  const formTitle = permission ? "Chỉnh sửa Quyền" : "Thêm Quyền mới";
+  const formTitle = permission ? "Chỉnh sửa quyền" : "Thêm quyền mới";
 
   if (!show) return null;
 
   return (
     <Modal show={show} onClose={onCancel || (() => { })} title={formTitle} size="xl" loading={loading || isSubmitting}>
-      <form onSubmit={handleSubmit((data) => onSubmit?.(data))} className="space-y-8 p-1">
+      <form onSubmit={handleSubmit((data) => {
+        const isEdit = !!permission;
+        const payload: Record<string, unknown> = {
+          name: data.name || undefined,
+          parentId: data.parentId ? String(data.parentId) : null,
+        };
+        if (isEdit) {
+          payload.status = data.status;
+        } else {
+          payload.code = data.code;
+        }
+        onSubmit?.(payload);
+      })} className="space-y-8 p-1">
 
         {/* SECTION: THÔNG TIN QUYỀN */}
         <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
@@ -105,8 +111,8 @@ export default function PermissionForm({
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Thông tin Quyền</h3>
-              <p className="text-xs text-gray-500">Mã định danh hệ thống và phạm vi áp dụng</p>
+              <h3 className="text-lg font-bold text-gray-900">Thông tin quyền</h3>
+              <p className="text-xs text-gray-500">Mã định danh hệ thống và phân cấp</p>
             </div>
           </header>
 
@@ -121,26 +127,27 @@ export default function PermissionForm({
               helpText={permission ? "Code không thể thay đổi sau khi tạo" : "Dùng để kiểm tra quyền trong code (ví dụ: hasPermission('user.manage'))"}
             />
             <FormField
-              label="Tên Quyền"
+              label="Tên quyền"
               {...register("name")}
               placeholder="Ví dụ: Quản lý bài viết"
               error={errors.name?.message}
-              required
             />
 
             <Controller
-              name="scope"
+              name="parentId"
               control={control}
-              render={({ field: { value, onChange } }) => (
-                <div className="space-y-1">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Phạm vi (Scope) <span className="text-red-500">*</span></label>
-                  <SingleSelectEnhanced
-                    value={value}
-                    options={scopeOptions}
-                    onChange={onChange}
-                    placeholder="Chọn phạm vi..."
+              render={({ field }) => (
+                <div className="space-y-1.5">
+                  <label className="text-sm font-semibold text-gray-700">Quyền cha</label>
+                  <SearchableSelect
+                    value={field.value ?? null}
+                    onChange={(value) => field.onChange(value == null ? "" : String(value))}
+                    searchApi={adminEndpoints.permissions.simple}
+                    placeholder="Tìm kiếm quyền cha..."
+                    excludeId={permission?.id}
+                    labelField="name"
+                    error={errors.parentId?.message}
                   />
-                  {errors.scope && <p className="text-xs text-red-500">{errors.scope.message}</p>}
                 </div>
               )}
             />
@@ -178,14 +185,10 @@ export default function PermissionForm({
             disabled={isSubmitting}
             className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
           >
-            {isSubmitting ? "Đang xử lý..." : permission ? "Cập nhật Quyền" : "Thêm Quyền mới"}
+            {isSubmitting ? "Đang xử lý..." : permission ? "Cập nhật quyền" : "Thêm quyền mới"}
           </button>
         </div>
       </form>
     </Modal>
   );
 }
-
-
-
-

@@ -1,11 +1,10 @@
 import { EditTarget } from "@/hooks/crud/useFormModal";
 
 export interface Permission {
-  id: number;
+  id: number | string;
   code?: string;
   name?: string;
-  scope?: string;
-  parent_id?: number | null;
+  parentId?: string | number | null;
   status?: string;
 }
 

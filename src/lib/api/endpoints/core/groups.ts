@@ -2,19 +2,18 @@ type Id = string | number;
 
 export const groupEndpoints = {
     user: {
-        list: "/api/user/groups",
+        list: "/api/iam/user/groups",
     },
     admin: {
-        list: "/api/admin/groups",
-        create: "/api/admin/groups",
-        show: (id: Id) => `/api/admin/groups/${id}`,
-        update: (id: Id) => `/api/admin/groups/${id}`,
-        delete: (id: Id) => `/api/admin/groups/${id}`,
+        list: "/api/iam/admin/groups",
+        create: "/api/iam/admin/groups",
+        show: (id: Id) => `/api/iam/admin/groups/${id}`,
+        update: (id: Id) => `/api/iam/admin/groups/${id}`,
+        delete: (id: Id) => `/api/iam/admin/groups/${id}`,
         members: {
-            list: (groupId: Id) => `/api/groups/${groupId}/members`,
-            add: (groupId: Id) => `/api/groups/${groupId}/members`,
-            updateRoles: (groupId: Id, memberId: Id) => `/api/groups/${groupId}/members/${memberId}/roles`,
-            remove: (groupId: Id, memberId: Id) => `/api/groups/${groupId}/members/${memberId}`,
+            list: (groupId: Id) => `/api/iam/admin/groups/${groupId}/members`,
+            add: (groupId: Id) => `/api/iam/admin/groups/${groupId}/members`,
+            remove: (groupId: Id, memberId: Id) => `/api/iam/admin/groups/${groupId}/members/${memberId}`,
         },
     },
 } as const;

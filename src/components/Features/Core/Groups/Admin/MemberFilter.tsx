@@ -14,17 +14,15 @@ export default function MemberFilter({
   onFilterChange,
 }: MemberFilterProps) {
   const sortOptions = [
-    { value: "created_at:desc", label: "Mới nhất" },
-    { value: "created_at:asc", label: "Cũ nhất" },
-    { value: "username:asc", label: "Biệt danh (A-Z)" },
-    { value: "username:desc", label: "Biệt danh (Z-A)" },
+    { value: "joinedAt:DESC", label: "Mới nhất" },
+    { value: "joinedAt:ASC", label: "Cũ nhất" },
   ];
 
   return (
     <AdminFilter
       initialFilters={initialFilters}
       sortOptions={sortOptions}
-      sortField="sort_by"
+      sortField="sort"
       searchField="search"
       searchPlaceholder="Tìm theo tên đăng nhập, email..."
       hasAdvancedFilters={false}

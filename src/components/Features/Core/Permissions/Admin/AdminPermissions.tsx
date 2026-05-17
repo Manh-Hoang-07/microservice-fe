@@ -50,7 +50,7 @@ export default function AdminPermissions({
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden mt-6">
         {loading ? (
-          <SkeletonLoader type="table" rows={10} columns={6} />
+          <SkeletonLoader type="table" rows={10} columns={5} />
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -59,7 +59,6 @@ export default function AdminPermissions({
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã code</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên quyền</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phạm vi</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                 </tr>
@@ -79,32 +78,23 @@ export default function AdminPermissions({
                         {permission.name || "—"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${permission.scope === "system" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800"}`}>
-                          {permission.scope === "system" ? "System" : "Context"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badge.className}`}>
                           {badge.label}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        {!permission.has_children ? (
-                          <Actions
-                            item={permission}
-                            onEdit={() => openEdit(permission, endpoints)}
-                            onDelete={() => openDelete(permission, endpoints)}
-                          />
-                        ) : (
-                          <span className="text-gray-400 text-xs italic">Có {permission.children_count} quyền con</span>
-                        )}
+                        <Actions
+                          item={permission}
+                          onEdit={() => openEdit(permission, endpoints)}
+                          onDelete={() => openDelete(permission, endpoints)}
+                        />
                       </td>
                     </tr>
                   );
                 })}
                 {!loading && items.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-6 py-10 text-center text-gray-500">Không có dữ liệu</td>
+                    <td colSpan={5} className="px-6 py-10 text-center text-gray-500">Không có dữ liệu</td>
                   </tr>
                 )}
               </tbody>

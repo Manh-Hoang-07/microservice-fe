@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useForm, Controller, useWatch } from "react-hook-form";
+import { useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Modal from "@/components/UI/Feedback/Modal";
 import FormField from "@/components/UI/Forms/FormField";
-import api from "@/lib/api/client";
+import SearchableSelect from "@/components/UI/Forms/SearchableSelect";
+import SingleSelectEnhanced from "@/components/UI/Forms/SingleSelectEnhanced";
 import { adminEndpoints } from "@/lib/api/endpoints";
 import { groupSchema, type GroupFormValues } from "./Constants/schemas";
-import { type Group, type GroupFormProps } from "./Constants/types";
+import { type GroupFormProps } from "./Constants/types";
 
-
-const getTypeLabel = (type?: string): string => {
-  if (!type) return "";
-  return type.charAt(0).toUpperCase() + type.slice(1);
-};
+const STATUS_OPTIONS = [
+  { value: "active", label: "Hoạt động" },
+  { value: "inactive", label: "Ngừng hoạt động" },
+];
 
 export default function GroupForm({
   show,
@@ -30,7 +30,6 @@ export default function GroupForm({
     control,
     reset,
     setError,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<GroupFormValues>({
     resolver: zodResolver(groupSchema),
@@ -39,12 +38,10 @@ export default function GroupForm({
       code: "",
       name: "",
       description: "",
-      metadata: {},
-      metadata_json: "",
+      ownerId: "",
+      status: "active",
     },
   });
-
-  const selectedType = useWatch({ control, name: "type" });
 
   // Reset/Initialize
   useEffect(() => {
@@ -55,8 +52,8 @@ export default function GroupForm({
           code: group.code || "",
           name: group.name || "",
           description: group.description || "",
-          metadata: group.metadata || {},
-          metadata_json: group.metadata ? JSON.stringify(group.metadata, null, 2) : "",
+          ownerId: group.ownerId != null ? String(group.ownerId) : "",
+          status: (group.status as "active" | "inactive") || "active",
         });
       } else {
         reset({
@@ -64,8 +61,8 @@ export default function GroupForm({
           code: "",
           name: "",
           description: "",
-          metadata: {},
-          metadata_json: "",
+          ownerId: "",
+          status: "active",
         });
       }
     }
@@ -76,33 +73,28 @@ export default function GroupForm({
     if (apiErrors) {
       Object.keys(apiErrors).forEach((key) => {
         const message = Array.isArray(apiErrors[key]) ? apiErrors[key][0] : String(apiErrors[key]);
-        setError(key as any, { message });
+        setError(key as keyof GroupFormValues, { message });
       });
     }
   }, [apiErrors, setError]);
 
   const handleFormSubmit = (data: GroupFormValues) => {
-    let finalMetadata = data.metadata;
-
-    // Handle JSON metadata if visible
-    if (selectedType !== "shop" && selectedType !== "team" && data.metadata_json) {
-      try {
-        finalMetadata = JSON.parse(data.metadata_json);
-      } catch (e) {
-        setError("metadata_json", { message: "JSON không hợp lệ" });
-        return;
-      }
-    }
-
-    const { metadata_json: _, ...submitData } = {
-      ...data,
-      metadata: finalMetadata,
+    const isEdit = !!group;
+    const payload: Record<string, unknown> = {
+      name: data.name,
+      description: data.description || undefined,
     };
-
-    onSubmit?.(submitData);
+    if (data.ownerId) payload.ownerId = data.ownerId;
+    if (isEdit) {
+      payload.status = data.status;
+    } else {
+      payload.type = data.type;
+      payload.code = data.code;
+    }
+    onSubmit?.(payload);
   };
 
-  const formTitle = group ? "Chỉnh sửa group" : "Thêm group mới";
+  const formTitle = group ? "Chỉnh sửa nhóm" : "Thêm nhóm mới";
 
   if (!show) return null;
 
@@ -119,20 +111,20 @@ export default function GroupForm({
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Thông tin Group</h3>
-              <p className="text-xs text-gray-500">Phân loại và định danh cho group</p>
+              <h3 className="text-lg font-bold text-gray-900">Thông tin nhóm</h3>
+              <p className="text-xs text-gray-500">Phân loại và định danh nhóm</p>
             </div>
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              label="Loại group"
+              label="Loại nhóm"
               {...register("type")}
               error={errors.type?.message}
               disabled={!!group}
-              placeholder="shop, team, project, department..."
+              placeholder="team, studio, department..."
               required
-              helpText={group ? "Không thể thay đổi loại group" : ""}
+              helpText={group ? "Không thể thay đổi loại nhóm" : "2-50 ký tự, chỉ a-z 0-9 _ -"}
             />
 
             <FormField
@@ -140,94 +132,68 @@ export default function GroupForm({
               {...register("code")}
               error={errors.code?.message}
               disabled={!!group}
-              placeholder="shop-001, team-dev..."
+              placeholder="team-alpha, studio-01..."
               required
+              helpText={group ? undefined : "Unique trong cùng loại nhóm"}
             />
 
             <FormField
-              label="Tên group"
+              label="Tên nhóm"
               {...register("name")}
               error={errors.name?.message}
-              placeholder="Ví dụ: Development Team, Shop A..."
+              placeholder="Ví dụ: Team Alpha, Studio Comic..."
               required
             />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chủ nhóm (Owner)
+              </label>
+              <Controller
+                name="ownerId"
+                control={control}
+                render={({ field }) => (
+                  <SearchableSelect
+                    value={field.value ?? null}
+                    onChange={(value) => field.onChange(value == null ? "" : String(value))}
+                    searchApi={adminEndpoints.users.simple}
+                    labelField="name"
+                    placeholder="Chọn chủ nhóm..."
+                    error={errors.ownerId?.message}
+                  />
+                )}
+              />
+              <p className="text-xs text-gray-500 mt-1">User được chọn sẽ tự động được gán role <code>group_owner</code>.</p>
+            </div>
+
+            {group && (
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <SingleSelectEnhanced
+                    {...field}
+                    label="Trạng thái"
+                    options={STATUS_OPTIONS}
+                    placeholder="-- Chọn trạng thái --"
+                    error={errors.status?.message}
+                    required
+                  />
+                )}
+              />
+            )}
           </div>
 
           <FormField
             label="Mô tả"
             type="textarea"
-            rows={3}
+            rows={4}
             {...register("description")}
             error={errors.description?.message}
-            placeholder="Nhập mô tả chi tiết về group..."
+            placeholder="Nhập mô tả chi tiết về nhóm..."
+            helpText="Tối đa 1000 ký tự"
           />
         </section>
-
-        {/* SECTION: THÔNG TIN BỔ SUNG (METADATA) */}
-        {selectedType && (
-          <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
-            <header className="flex items-center space-x-3 mb-2">
-              <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Thông tin bổ sung</h3>
-                <p className="text-xs text-gray-500">Dữ liệu đặc thù cho loại {getTypeLabel(selectedType)}</p>
-              </div>
-            </header>
-
-            {selectedType === "shop" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  label="Địa chỉ"
-                  {...register("metadata.address")}
-                  placeholder="Nhập địa chỉ shop..."
-                />
-                <FormField
-                  label="Số điện thoại"
-                  {...register("metadata.phone")}
-                  placeholder="Nhập SĐT liên hệ..."
-                />
-                <FormField
-                  label="Email"
-                  type="email"
-                  {...register("metadata.email")}
-                  placeholder="shop@example.com"
-                />
-              </div>
-            )}
-
-            {selectedType === "team" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  label="Leader"
-                  {...register("metadata.leader")}
-                  placeholder="Tên trưởng nhóm..."
-                />
-                <FormField
-                  label="Số lượng members"
-                  type="number"
-                  {...register("metadata.members_count", { valueAsNumber: true })}
-                  placeholder="0"
-                />
-              </div>
-            )}
-
-            {selectedType !== "shop" && selectedType !== "team" && (
-              <FormField
-                label="Cấu hình (JSON)"
-                type="textarea"
-                rows={5}
-                {...register("metadata_json")}
-                error={errors.metadata_json?.message}
-                placeholder='{ "key": "value" }'
-                className="font-mono text-sm"
-              />
-            )}
-          </section>
-        )}
 
         {/* FOOTER ACTIONS */}
         <div className="flex justify-end space-x-4 pt-6 border-t border-gray-100">
@@ -243,14 +209,10 @@ export default function GroupForm({
             disabled={isSubmitting || loading}
             className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
           >
-            {isSubmitting ? "Đang xử lý..." : group ? "Cập nhật group" : "Thêm group mới"}
+            {isSubmitting ? "Đang xử lý..." : group ? "Cập nhật nhóm" : "Thêm nhóm mới"}
           </button>
         </div>
       </form>
     </Modal>
   );
 }
-
-
-
-

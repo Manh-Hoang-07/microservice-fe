@@ -218,8 +218,8 @@ export default function ContentTemplateForm({
                 ) : (
                     <FormField
                         label="Đường dẫn File (Path)"
-                        {...register("file_path")}
-                        error={errors.file_path?.message?.toString()}
+                        {...register("filePath")}
+                        error={errors.filePath?.message?.toString()}
                         placeholder="Ví dụ: templates/contract_v1.docx"
                     />
                 )}

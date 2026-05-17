@@ -1,16 +1,18 @@
 import { EditTarget } from "@/hooks/crud/useFormModal";
 
 export interface Group {
-  id: number;
+  id: number | string;
   type?: string;
   code?: string;
   name?: string;
   description?: string;
-  metadata?: Record<string, unknown>;
   status?: string;
+  ownerId?: string | number | null;
+  metadata?: Record<string, unknown> | null;
+  createdAt?: string;
+  updatedAt?: string;
   displayName?: string;
 }
-
 
 export interface GroupFormProps {
   show: boolean;

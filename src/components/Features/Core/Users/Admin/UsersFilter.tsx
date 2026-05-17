@@ -31,19 +31,19 @@ export default function UsersFilter({
   }, [statusEnums]);
 
   const sortOptions = [
-    { value: "created_at:desc", label: "Mới nhất" },
-    { value: "created_at:asc", label: "Cũ nhất" },
-    { value: "username:asc", label: "Tên đăng nhập (A-Z)" },
-    { value: "username:desc", label: "Tên đăng nhập (Z-A)" },
-    { value: "email:asc", label: "Email (A-Z)" },
-    { value: "email:desc", label: "Email (Z-A)" },
+    { value: "createdAt:DESC", label: "Mới nhất" },
+    { value: "createdAt:ASC", label: "Cũ nhất" },
+    { value: "username:ASC", label: "Tên đăng nhập (A-Z)" },
+    { value: "username:DESC", label: "Tên đăng nhập (Z-A)" },
+    { value: "email:ASC", label: "Email (A-Z)" },
+    { value: "email:DESC", label: "Email (Z-A)" },
   ];
 
   return (
     <AdminFilter
       initialFilters={initialFilters}
       sortOptions={sortOptions}
-      sortField="sort_by"
+      sortField="sort"
       searchField="search"
       searchPlaceholder="Tìm theo tên đăng nhập, email..."
       hasAdvancedFilters={true}

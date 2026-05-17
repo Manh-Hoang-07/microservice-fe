@@ -84,7 +84,7 @@ export function PublicHeader({
     setIsSearchOpen(false); // Close search on navigation
   }, [pathname]);
 
-  const siteName = systemConfig?.site_name || "Comic Haven";
+  const siteName = systemConfig?.siteName || "Comic Haven";
 
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollYRef = useRef(0);
@@ -160,9 +160,9 @@ export function PublicHeader({
             <div className="flex items-center gap-3 shrink-0">
               <Link href="/" className="flex items-center gap-3 group">
                 <div className={`relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-red-600 flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-105 overflow-hidden shrink-0`}>
-                  {systemConfig?.site_logo ? (
+                  {systemConfig?.siteLogo ? (
                     <Image
-                      src={systemConfig.site_logo}
+                      src={systemConfig.siteLogo as string}
                       alt={siteName}
                       fill
                       className="object-cover"

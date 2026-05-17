@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import apiClient from '@/lib/api/client';
-import { adminEndpoints } from '@/lib/api/endpoints/admin';
+import { adminEndpoints } from '@/lib/api/endpoints';
 import { PostStatisticsOverview, PostViewStats } from '@/types/api';
 import { format, subDays, isValid } from 'date-fns';
 import { vi } from 'date-fns/locale';

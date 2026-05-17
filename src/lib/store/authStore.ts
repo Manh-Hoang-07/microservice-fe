@@ -26,7 +26,6 @@ function clearAllLocalData() {
   storage.auth.clearRefreshToken();
   storage.group.clearGroups();
   storage.group.clearSelected();
-  clearTokenFromCookie("group_id");
 }
 
 /** Luu user data vao localStorage */
@@ -142,7 +141,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             // Clear old group data
             storage.group.clearGroups();
             storage.group.clearSelected();
-            clearTokenFromCookie("group_id");
 
             return { success: true, data: response.data.data, message: response.data.message };
           }

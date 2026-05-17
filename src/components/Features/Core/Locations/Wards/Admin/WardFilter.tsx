@@ -15,12 +15,12 @@ export default function WardFilter({
   onUpdateFilters,
 }: WardFilterProps) {
   const sortOptions = [
-    { value: "name:asc", label: "Tên (A-Z)" },
-    { value: "name:desc", label: "Tên (Z-A)" },
-    { value: "code:asc", label: "Mã (A-Z)" },
-    { value: "code:desc", label: "Mã (Z-A)" },
-    { value: "createdAt:desc", label: "Ngày tạo (mới nhất)" },
-    { value: "createdAt:asc", label: "Ngày tạo (cũ nhất)" },
+    { value: "name:ASC", label: "Tên (A-Z)" },
+    { value: "name:DESC", label: "Tên (Z-A)" },
+    { value: "code:ASC", label: "Mã (A-Z)" },
+    { value: "code:DESC", label: "Mã (Z-A)" },
+    { value: "createdAt:DESC", label: "Ngày tạo (mới nhất)" },
+    { value: "createdAt:ASC", label: "Ngày tạo (cũ nhất)" },
   ];
 
   const statusOptions = useMemo(
@@ -36,7 +36,7 @@ export default function WardFilter({
     <AdminFilter
       initialFilters={initialFilters}
       sortOptions={sortOptions}
-      sortField="sort_by"
+      sortField="sort"
       searchField="search"
       searchPlaceholder="Tìm theo tên, mã phường/xã..."
       hasAdvancedFilters={true}
