@@ -6,12 +6,12 @@ import { z } from "zod";
 import { Button } from "@/components/UI/Navigation/Button";
 import FormField from "@/components/UI/Forms/FormField";
 import { submitContact } from "@/lib/api/public/contact";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 
 const contactSchema = z.object({
     name: z.string().min(1, "Họ và tên là bắt buộc").max(255, "Họ và tên tối đa 255 ký tự"),
     email: z.string().min(1, "Email là bắt buộc").email("Email không hợp lệ").max(255, "Email tối đa 255 ký tự"),
-    phone: z.string().min(1, "Số điện thoại là bắt buộc").max(20, "Số điện thoại tối đa 20 ký tự"),
+    phone: z.string().max(50, "Số điện thoại tối đa 50 ký tự").regex(/^[+]?[0-9 .\-]{6,50}$/, "Số điện thoại không hợp lệ").optional().or(z.literal("")),
     message: z.string().min(1, "Nội dung là bắt buộc"),
 });
 
@@ -104,7 +104,6 @@ export function ContactForm() {
                     label="Số điện thoại"
                     placeholder="090 123 4567"
                     {...register("phone")}
-                    required
                     error={errors.phone?.message}
                 />
 
