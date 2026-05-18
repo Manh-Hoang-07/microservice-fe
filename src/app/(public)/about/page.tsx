@@ -1,6 +1,6 @@
 import { getAboutSections, getStaffList } from "@/lib/api/public/general";
 import { Metadata } from "next";
-import AboutContent from "@/components/Features/Introduction/About/Public/AboutContent";
+import AboutContent from "@/components/Features/CMS/About/Public/AboutContent";
 
 export const metadata: Metadata = {
   title: "Về chúng tôi",

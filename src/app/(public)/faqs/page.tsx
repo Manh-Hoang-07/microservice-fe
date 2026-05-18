@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import FaqsPage from "@/components/Features/Introduction/Faqs/Public/FaqsPage";
+import FaqsPage from "@/components/Features/CMS/Faqs/Public/FaqsPage";
 import { Breadcrumbs } from "@/components/UI/Navigation/Breadcrumbs";
 import { serverFetch } from "@/lib/api/server-client";
 import Link from "next/link";

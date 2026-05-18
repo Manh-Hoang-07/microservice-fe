@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { serverFetch } from "@/lib/api/server-client";
 import { publicEndpoints } from "@/lib/api/endpoints";
-import GalleryDetail from "@/components/Features/Introduction/Gallery/Public/GalleryDetail";
-import type { GalleryItem } from "@/components/Features/Introduction/Gallery/Public/GalleryDetail";
+import GalleryDetail from "@/components/Features/CMS/Gallery/Public/GalleryDetail";
+import type { GalleryItem } from "@/components/Features/CMS/Gallery/Public/GalleryDetail";
 
 interface PageProps {
     params: Promise<{

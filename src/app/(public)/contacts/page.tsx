@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { getSystemConfig } from "@/lib/api/public/general";
 import { SystemConfig } from "@/types/api";
-import ContactPageContent from "@/components/Features/Introduction/Contacts/Public/ContactPageContent";
+import ContactPageContent from "@/components/Features/CMS/Contacts/Public/ContactPageContent";
 
 export const metadata: Metadata = {
   title: "Liên hệ",

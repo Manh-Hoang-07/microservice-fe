@@ -2,10 +2,10 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/UI/Navigation/Button";
-import HeroBanner from "@/components/Features/Marketing/Banners/Public/HeroBanner";
+import HeroBanner from "@/components/Features/CMS/Banners/Public/HeroBanner";
 import { Breadcrumbs } from "@/components/UI/Navigation/Breadcrumbs";
-import ProjectListAsync from "@/components/Features/Introduction/Projects/Public/ProjectListAsync";
-import ProjectSkeleton from "@/components/Features/Introduction/Projects/Public/ProjectSkeleton";
+import ProjectListAsync from "@/components/Features/CMS/Projects/Public/ProjectListAsync";
+import ProjectSkeleton from "@/components/Features/CMS/Projects/Public/ProjectSkeleton";
 
 export const metadata: Metadata = {
   title: "Dự án",

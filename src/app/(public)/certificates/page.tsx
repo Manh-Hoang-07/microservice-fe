@@ -1,9 +1,9 @@
 import { serverFetch } from "@/lib/api/server-client";
 import { publicEndpoints } from "@/lib/api/endpoints";
-import { CertificateList } from "@/components/Features/Introduction/Certificates/Public/CertificateList";
+import { CertificateList } from "@/components/Features/CMS/Certificates/Public/CertificateList";
 import { Metadata } from "next";
 import { Button } from "@/components/UI/Navigation/Button";
-import HeroBanner from "@/components/Features/Marketing/Banners/Public/HeroBanner";
+import HeroBanner from "@/components/Features/CMS/Banners/Public/HeroBanner";
 
 export const metadata: Metadata = {
   title: "Chứng chỉ & Giấy phép",

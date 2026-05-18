@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import ServiceDetail from "@/components/Features/Introduction/Services/Public/ServiceDetail";
+import ServiceDetail from "@/components/Features/CMS/Services/Public/ServiceDetail";
 
 // Mock data for detail page (includes fullDescription not in list page data)
 const MOCK_SERVICES = [

@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { serverFetch } from "@/lib/api/server-client";
 import { publicEndpoints } from "@/lib/api/endpoints";
-import CertificateDetail from "@/components/Features/Introduction/Certificates/Public/CertificateDetail";
-import type { Certificate } from "@/components/Features/Introduction/Certificates/Public/CertificateDetail";
+import CertificateDetail from "@/components/Features/CMS/Certificates/Public/CertificateDetail";
+import type { Certificate } from "@/components/Features/CMS/Certificates/Public/CertificateDetail";
 
 interface PageProps {
     params: Promise<{

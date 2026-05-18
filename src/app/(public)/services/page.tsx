@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Button } from "@/components/UI/Navigation/Button";
-import { ServiceFilter } from "@/components/Features/Introduction/Services/Public/ServiceFilter";
+import { ServiceFilter } from "@/components/Features/CMS/Services/Public/ServiceFilter";
 import { Metadata } from "next";
-import HeroBanner from "@/components/Features/Marketing/Banners/Public/HeroBanner";
+import HeroBanner from "@/components/Features/CMS/Banners/Public/HeroBanner";
 import { Breadcrumbs } from "@/components/UI/Navigation/Breadcrumbs";
 import { getServices } from "@/lib/data/mock-services";
 

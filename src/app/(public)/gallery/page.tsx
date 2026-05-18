@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 import { serverFetch } from "@/lib/api/server-client";
-import HeroBanner from "@/components/Features/Marketing/Banners/Public/HeroBanner";
+import HeroBanner from "@/components/Features/CMS/Banners/Public/HeroBanner";
 import { Breadcrumbs } from "@/components/UI/Navigation/Breadcrumbs";
-import GalleryInteractive from "@/components/Features/Introduction/Gallery/Public/GalleryInteractive";
+import GalleryInteractive from "@/components/Features/CMS/Gallery/Public/GalleryInteractive";
 import { Button } from "@/components/UI/Navigation/Button";
 
 export const metadata: Metadata = {
