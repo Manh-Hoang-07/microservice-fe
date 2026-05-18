@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -31,16 +30,11 @@ const TYPE_COLOR: Record<Notification["type"], string> = {
 };
 
 export default function NotificationDropdown({ onClose }: NotificationDropdownProps) {
-    const [isMounted, setIsMounted] = useState(false);
     const router = useRouter();
 
     const { notifications, isLoading } = useNotifications({ limit: 10, page: 1 });
     const { markRead } = useMarkRead();
     const { markAllRead, isPending: isMarkingAll } = useMarkAllRead();
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
 
     const handleItemClick = (item: Notification) => {
         markRead(item.id);
@@ -49,8 +43,6 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
             router.push(item.data.url as string);
         }
     };
-
-    if (!isMounted) return null;
 
     const content = (
         <>
