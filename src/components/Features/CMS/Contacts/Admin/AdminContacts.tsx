@@ -1,15 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { useCrudList } from "@/hooks";
 import { adminEndpoints } from "@/lib/api/endpoints";
 import ContactsFilter from "./ContactsFilter";
+import ContactReplyModal from "./ContactReplyModal";
 import SkeletonLoader from "@/components/UI/Feedback/SkeletonLoader";
-import Actions from "@/components/UI/DataDisplay/Actions";
 import Pagination from "@/components/UI/DataDisplay/Pagination";
-import { formatDate } from "@/utils";
 import ConfirmModal from "@/components/UI/Feedback/ConfirmModal";
+import { formatDate } from "@/utils";
 import { getStatusBadge } from "@/config/constants/status";
 import { CONTACT_STATUS_BADGES } from "@/components/Features/CMS/Contacts/constants";
+import { contactAdminService } from "@/lib/api/admin/contacts";
+import { useToastContext } from "@/lib/toast";
 
 const endpoints = adminEndpoints.contacts;
 
@@ -18,6 +21,7 @@ interface AdminContactsProps {
 }
 
 export default function AdminContacts({ title = "Quản lý Liên hệ" }: AdminContactsProps) {
+    const { showSuccess, showError } = useToastContext();
     const {
         data, actions, ui,
         deleteModal,
@@ -29,6 +33,28 @@ export default function AdminContacts({ title = "Quản lý Liên hệ" }: Admin
 
     const { items, loading, pagination, filters, hasData } = data;
     const { getSerialNumber } = ui;
+
+    const [replyModal, setReplyModal] = useState<{ id: string | number; name: string } | null>(null);
+
+    const handleMarkAsRead = async (id: string | number) => {
+        try {
+            await contactAdminService.markAsRead(id);
+            showSuccess("Đã đánh dấu đã đọc");
+            actions.refresh();
+        } catch {
+            showError("Không thể thực hiện thao tác");
+        }
+    };
+
+    const handleClose = async (id: string | number) => {
+        try {
+            await contactAdminService.close(id);
+            showSuccess("Đã đóng liên hệ");
+            actions.refresh();
+        } catch {
+            showError("Không thể thực hiện thao tác");
+        }
+    };
 
     return (
         <div className="admin-contacts">
@@ -43,7 +69,7 @@ export default function AdminContacts({ title = "Quản lý Liên hệ" }: Admin
 
             <div className="bg-white shadow-md rounded-lg overflow-hidden mt-6">
                 {loading ? (
-                    <SkeletonLoader type="table" rows={10} columns={7} />
+                    <SkeletonLoader type="table" rows={10} columns={8} />
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
@@ -53,9 +79,9 @@ export default function AdminContacts({ title = "Quản lý Liên hệ" }: Admin
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Họ tên</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email/SĐT</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nội dung</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Trạng thái</th>
+                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tạo</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Thao tác</th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -81,11 +107,38 @@ export default function AdminContacts({ title = "Quản lý Liên hệ" }: Admin
                                                 {formatDate(contact.created_at)}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
-                                                <Actions
-                                                    item={contact}
-                                                    showEdit={false}
-                                                    onDelete={() => openDelete(contact, endpoints)}
-                                                />
+                                                <div className="flex items-center justify-end gap-2">
+                                                    {contact.status !== "Replied" && contact.status !== "Closed" && (
+                                                        <button
+                                                            onClick={() => setReplyModal({ id: contact.id, name: contact.name })}
+                                                            className="px-2 py-1 text-xs font-medium text-blue-600 border border-blue-200 rounded hover:bg-blue-50 transition-colors"
+                                                        >
+                                                            Phản hồi
+                                                        </button>
+                                                    )}
+                                                    {contact.status === "Pending" && (
+                                                        <button
+                                                            onClick={() => handleMarkAsRead(contact.id)}
+                                                            className="px-2 py-1 text-xs font-medium text-green-600 border border-green-200 rounded hover:bg-green-50 transition-colors"
+                                                        >
+                                                            Đã đọc
+                                                        </button>
+                                                    )}
+                                                    {contact.status !== "Closed" && (
+                                                        <button
+                                                            onClick={() => handleClose(contact.id)}
+                                                            className="px-2 py-1 text-xs font-medium text-gray-600 border border-gray-200 rounded hover:bg-gray-50 transition-colors"
+                                                        >
+                                                            Đóng
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => openDelete(contact, endpoints)}
+                                                        className="px-2 py-1 text-xs font-medium text-red-600 border border-red-200 rounded hover:bg-red-50 transition-colors"
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     );
@@ -118,6 +171,15 @@ export default function AdminContacts({ title = "Quản lý Liên hệ" }: Admin
                     message={`Bạn có chắc chắn muốn xóa liên hệ từ "${deleteModal.data.displayName}"?`}
                     onClose={deleteModal.close}
                     onConfirm={handleDeleteConfirm}
+                />
+            )}
+
+            {replyModal && (
+                <ContactReplyModal
+                    contactId={replyModal.id}
+                    contactName={replyModal.name}
+                    onClose={() => setReplyModal(null)}
+                    onSuccess={() => actions.refresh()}
                 />
             )}
         </div>
