@@ -70,7 +70,7 @@ export function useUnreadCount() {
 export function useMarkRead() {
     const queryClient = useQueryClient();
 
-    const { mutate: markRead, isPending: isLoading } = useMutation({
+    const { mutate: markRead, isPending } = useMutation({
         mutationFn: (id: string) =>
             api.patch(notificationEndpoints.user.markRead(id)),
         onSuccess: () => {
@@ -78,14 +78,14 @@ export function useMarkRead() {
         },
     });
 
-    return { markRead, isLoading };
+    return { markRead, isPending };
 }
 
 export function useMarkAllRead() {
     const queryClient = useQueryClient();
     const { showSuccess, showError } = useToastContext();
 
-    const { mutate: markAllRead, isPending: isLoading } = useMutation({
+    const { mutate: markAllRead, isPending } = useMutation({
         mutationFn: () => api.patch(notificationEndpoints.user.markAllRead),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -94,5 +94,5 @@ export function useMarkAllRead() {
         onError: () => showError("Không thể thực hiện thao tác"),
     });
 
-    return { markAllRead, isLoading };
+    return { markAllRead, isPending };
 }
