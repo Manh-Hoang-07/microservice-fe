@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import GroupSwitcher from "@/components/UI/Navigation/GroupSwitcher";
 import UserDropdown from "./UserDropdown";
+import NotificationBell from "@/components/Features/Notification/User/NotificationBell";
 import { useAuthStore } from "@/lib/store/authStore";
 
 interface HeaderBarProps {
@@ -48,7 +46,7 @@ export default function HeaderBar({
       <div className="flex items-center gap-3">
         {authStore.isAuthenticated && (
           <>
-            <GroupSwitcher className="mr-3" />
+            <NotificationBell />
             <UserDropdown
               username={username}
               email={email}
