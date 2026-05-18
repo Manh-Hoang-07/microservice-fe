@@ -191,7 +191,7 @@ export interface ContactPayload {
   name: string;
   email: string;
   message: string;
-  phone: string;
+  phone?: string;
 }
 
 export interface ContactResponse {
