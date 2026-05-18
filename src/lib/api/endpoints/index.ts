@@ -29,6 +29,7 @@ import {
     systemConfigEndpoints,
     contentTemplateEndpoints,
     locationEndpoints,
+    notificationEndpoints,
 } from './core';
 import {
     aboutEndpoints,
@@ -86,6 +87,7 @@ export const adminEndpoints = {
     analytics: analyticsEndpoints.admin,
     reviews: comicReviewEndpoints.admin,
     location: locationEndpoints.admin,
+    notifications: notificationEndpoints.admin,
 } as const;
 
 export const userEndpoints = {
@@ -109,6 +111,7 @@ export const userEndpoints = {
     bookmarks: bookmarkEndpoints.user,
     readingHistory: readingHistoryEndpoints.user,
     follows: followEndpoints.user,
+    notifications: notificationEndpoints.user,
 } as const;
 
 export const publicEndpoints = {

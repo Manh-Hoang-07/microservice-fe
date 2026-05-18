@@ -7,3 +7,4 @@ export { systemConfigEndpoints } from './systemConfig';
 export { contentTemplateEndpoints } from './contentTemplates';
 export { locationEndpoints } from './location';
 export { uploadEndpoints } from './uploads';
+export { notificationEndpoints } from './notifications';
