@@ -1,17 +1,19 @@
+// src/lib/api/endpoints/introduction/faqs.ts
 type Id = string | number;
 
 export const faqEndpoints = {
     public: {
-        list: "/api/faqs",
-        popular: "/api/faqs/popular",
-        show: (id: Id) => `/api/faqs/${id}`,
-        markHelpful: (id: Id) => `/api/faqs/${id}/helpful`,
+        list: "/api/cms/public/faqs",
+        popular: "/api/cms/public/faqs/popular",
+        show: (id: Id) => `/api/cms/public/faqs/${id}`,
+        markHelpful: (id: Id) => `/api/cms/public/faqs/${id}/helpful`,
+        view: (id: Id) => `/api/cms/public/faqs/${id}/view`,
     },
     admin: {
-        list: "/api/admin/faqs",
-        create: "/api/admin/faqs",
-        show: (id: Id) => `/api/admin/faqs/${id}`,
-        update: (id: Id) => `/api/admin/faqs/${id}`,
-        delete: (id: Id) => `/api/admin/faqs/${id}`,
+        list: "/api/cms/admin/faqs",
+        create: "/api/cms/admin/faqs",
+        show: (id: Id) => `/api/cms/admin/faqs/${id}`,
+        update: (id: Id) => `/api/cms/admin/faqs/${id}`,
+        delete: (id: Id) => `/api/cms/admin/faqs/${id}`,
     },
 } as const;
