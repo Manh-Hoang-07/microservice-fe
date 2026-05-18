@@ -2,14 +2,14 @@ type Id = string | number;
 
 export const partnerEndpoints = {
     public: {
-        list: "/api/partners",
-        getByType: (type: string) => `/api/partners/type/${type}`,
+        list: "/api/cms/public/partners",
+        getByType: (type: string) => `/api/cms/public/partners/type/${type}`,
     },
     admin: {
-        list: "/api/admin/partners",
-        create: "/api/admin/partners",
-        show: (id: Id) => `/api/admin/partners/${id}`,
-        update: (id: Id) => `/api/admin/partners/${id}`,
-        delete: (id: Id) => `/api/admin/partners/${id}`,
+        list: "/api/cms/admin/partners",
+        create: "/api/cms/admin/partners",
+        show: (id: Id) => `/api/cms/admin/partners/${id}`,
+        update: (id: Id) => `/api/cms/admin/partners/${id}`,
+        delete: (id: Id) => `/api/cms/admin/partners/${id}`,
     },
 } as const;
