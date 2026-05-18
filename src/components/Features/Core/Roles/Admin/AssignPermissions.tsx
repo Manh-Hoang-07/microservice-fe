@@ -9,11 +9,19 @@ import { adminEndpoints } from "@/lib/api/endpoints";
 import { normalizeDetailResponse, normalizeListResponse } from "@/lib/api/response-normalizer";
 import { type AssignPermissionsProps } from "./Constants/types";
 
+interface RolePermissionEntry {
+  id?: string | number;
+  permissionId?: string | number;
+  permission?: { id?: string | number; code?: string; name?: string };
+  code?: string;
+  name?: string;
+}
+
 interface RoleDetail {
   id?: string | number;
   code?: string;
   name?: string;
-  permissions?: Array<{ id: string | number; code?: string; name?: string }>;
+  permissions?: RolePermissionEntry[];
 }
 
 interface PermissionItem {
@@ -44,7 +52,7 @@ export default function AssignPermissions({
       if (data) {
         setRoleDetail(data);
         const ids = Array.isArray(data.permissions)
-          ? data.permissions.map((p) => String(p.id))
+          ? data.permissions.map((p) => String(p.permissionId ?? p.permission?.id ?? p.id))
           : [];
         setFormData({ permissionIds: ids });
       } else {

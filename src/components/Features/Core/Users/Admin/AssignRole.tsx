@@ -54,7 +54,7 @@ export default function AssignRole({
       const userRolesData: unknown[] = userRolesRes.data?.data ?? userRolesRes.data ?? [];
       const currentIds = new Set(
         (Array.isArray(userRolesData) ? userRolesData : []).map((r: any) =>
-          toStrId(r.id ?? r.roleId)
+          toStrId(r.roleId ?? r.role?.id ?? r.id)
         )
       );
       setSelectedIds(currentIds);
