@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
-import AdminWards from "@/components/Features/Core/Locations/Wards/Admin/AdminWards";
+import AdminWards from "@/components/Features/Config/Locations/Wards/Admin/AdminWards";
 import PageMeta from "@/components/UI/Navigation/PageMeta";
 
 export const metadata: Metadata = {

@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import SystemConfigForm from "@/components/Features/Core/SystemConfig/Admin/SystemConfigForm";
+import SystemConfigForm from "@/components/Features/Config/SystemConfig/Admin/SystemConfigForm";
 import PageMeta from "@/components/UI/Navigation/PageMeta";
 
 interface ConfigField {

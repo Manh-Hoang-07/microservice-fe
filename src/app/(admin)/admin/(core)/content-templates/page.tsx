@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
-import AdminContentTemplates from "@/components/Features/Core/ContentTemplates/Admin/AdminContentTemplates";
+import AdminContentTemplates from "@/components/Features/Notification/ContentTemplates/Admin/AdminContentTemplates";
 import PageMeta from "@/components/UI/Navigation/PageMeta";
 
 export const metadata: Metadata = {

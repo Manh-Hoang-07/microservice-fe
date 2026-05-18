@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import ChangePasswordForm from "@/components/Features/Core/Users/User/Profile/ChangePasswordForm";
+import ChangePasswordForm from "@/components/Features/Users/User/Profile/ChangePasswordForm";
 
 export const metadata: Metadata = {
   title: "Đổi mật khẩu | User",

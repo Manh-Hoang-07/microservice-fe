@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Button } from "@/components/UI/Navigation/Button";
 import FormField from "@/components/UI/Forms/FormField";
 import Modal from "@/components/UI/Feedback/Modal";
-import LocationSelector from "@/components/Features/Core/Locations/Shared/LocationSelector";
+import LocationSelector from "@/components/Features/Config/Locations/Shared/LocationSelector";
 import { useUserProfile } from "@/hooks/data/user/useUserProfile";
 
 export default function UserProfile() {

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
-import AdminCountries from "@/components/Features/Core/Locations/Countries/Admin/AdminCountries";
+import AdminCountries from "@/components/Features/Config/Locations/Countries/Admin/AdminCountries";
 import PageMeta from "@/components/UI/Navigation/PageMeta";
 
 export const metadata: Metadata = {

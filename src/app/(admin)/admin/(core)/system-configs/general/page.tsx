@@ -1,8 +1,8 @@
 import React from "react";
 import { Metadata } from "next";
-import SystemConfigForm from "@/components/Features/Core/SystemConfig/Admin/SystemConfigForm";
-import ContactChannelsManager from "@/components/Features/Core/SystemConfig/Admin/ContactChannelsManager";
-import SystemLocationSelector from "@/components/Features/Core/SystemConfig/Admin/SystemLocationSelector";
+import SystemConfigForm from "@/components/Features/Config/SystemConfig/Admin/SystemConfigForm";
+import ContactChannelsManager from "@/components/Features/Config/SystemConfig/Admin/ContactChannelsManager";
+import SystemLocationSelector from "@/components/Features/Config/SystemConfig/Admin/SystemLocationSelector";
 import PageMeta from "@/components/UI/Navigation/PageMeta";
 
 interface ConfigField {

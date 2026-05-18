@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-const AdminUsers = dynamic(() => import("@/components/Features/Core/Users/Admin/AdminUsers"), {
+const AdminUsers = dynamic(() => import("@/components/Features/Users/Admin/AdminUsers"), {
     ssr: false,
     loading: () => <div>Đang tải...</div>,
 });

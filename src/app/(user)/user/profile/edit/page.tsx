@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import EditProfileForm from "@/components/Features/Core/Users/User/Profile/EditProfileForm";
+import EditProfileForm from "@/components/Features/Users/User/Profile/EditProfileForm";
 
 export const metadata: Metadata = {
   title: "Chỉnh sửa thông tin | User",

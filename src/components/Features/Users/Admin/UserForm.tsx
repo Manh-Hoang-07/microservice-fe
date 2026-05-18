@@ -7,7 +7,7 @@ import Modal from "@/components/UI/Feedback/Modal";
 import FormField from "@/components/UI/Forms/FormField";
 import ImageUploader from "@/components/UI/Forms/ImageUploader";
 import SingleSelectEnhanced from "@/components/UI/Forms/SingleSelectEnhanced";
-import LocationSelector from "@/components/Features/Core/Locations/Shared/LocationSelector";
+import LocationSelector from "@/components/Features/Config/Locations/Shared/LocationSelector";
 import { userSchema, type UserFormValues } from "./Constants/schemas";
 import { type User, type UserFormProps } from "./Constants/types";
 import { adminEndpoints } from "@/lib/api/endpoints";

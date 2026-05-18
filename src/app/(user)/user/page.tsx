@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import UserDashboard from "@/components/Features/Core/Users/User/Dashboard/UserDashboard";
+import UserDashboard from "@/components/Features/Users/User/Dashboard/UserDashboard";
 
 export const dynamic = "force-dynamic";
 

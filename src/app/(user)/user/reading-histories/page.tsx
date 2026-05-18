@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import PageMeta from "@/components/UI/Navigation/PageMeta";
-import UserReadingHistory from "@/components/Features/Core/Users/User/ReadingHistory/UserReadingHistory";
+import UserReadingHistory from "@/components/Features/Users/User/ReadingHistory/UserReadingHistory";
 
 export const metadata: Metadata = {
   title: "Lịch sử đọc | User",
