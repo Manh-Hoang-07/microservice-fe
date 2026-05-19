@@ -1,9 +1,17 @@
 type Id = string | number;
 
 export const postCommentEndpoints = {
+    public: {
+        list: "/api/posts/public/post-comments",
+    },
+    user: {
+        create: "/api/posts/user/post-comments",
+        update: (id: Id) => `/api/posts/user/post-comments/${id}`,
+        delete: (id: Id) => `/api/posts/user/post-comments/${id}`,
+    },
     admin: {
-        list: "/api/admin/post-comments",
-        updateStatus: (id: Id) => `/api/admin/post-comments/${id}/status`,
-        delete: (id: Id) => `/api/admin/post-comments/${id}`,
+        list: "/api/posts/admin/post-comments",
+        update: (id: Id) => `/api/posts/admin/post-comments/${id}`,
+        delete: (id: Id) => `/api/posts/admin/post-comments/${id}`,
     },
 } as const;

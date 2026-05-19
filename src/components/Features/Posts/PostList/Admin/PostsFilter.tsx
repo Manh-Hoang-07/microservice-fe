@@ -45,19 +45,22 @@ export default function PostsFilter({
     return options;
   }, [categoryEnums]);
 
-  const includeDeletedOptions = [
-    { value: "", label: "Mặc định" },
-    { value: "true", label: "Bao gồm đã xóa" },
-    { value: "false", label: "Chỉ chưa xóa" },
-  ];
-
   const sortOptions = [
+    { value: "publishedAt:desc", label: "Mới xuất bản nhất" },
+    { value: "publishedAt:asc", label: "Cũ nhất" },
+    { value: "viewCount:desc", label: "Nhiều lượt xem nhất" },
     { value: "name:asc", label: "Tên (A-Z)" },
     { value: "name:desc", label: "Tên (Z-A)" },
-    { value: "created_at:asc", label: "Ngày tạo (cũ nhất)" },
-    { value: "created_at:desc", label: "Ngày tạo (mới nhất)" },
-    { value: "updated_at:asc", label: "Ngày cập nhật (cũ nhất)" },
-    { value: "updated_at:desc", label: "Ngày cập nhật (mới nhất)" },
+    { value: "createdAt:desc", label: "Ngày tạo mới nhất" },
+    { value: "updatedAt:desc", label: "Cập nhật gần nhất" },
+  ];
+
+  const postTypeOptions = [
+    { value: "", label: "Tất cả loại" },
+    { value: "text", label: "Văn bản" },
+    { value: "video", label: "Video" },
+    { value: "image", label: "Hình ảnh" },
+    { value: "audio", label: "Âm thanh" },
   ];
 
   return (
@@ -71,48 +74,42 @@ export default function PostsFilter({
       onUpdateFilters={onUpdateFilters}
       onFilterChange={onFilterChange}
       advancedFilters={({ filters, onChange }) => (
-        <div>
-          <SelectFilter
-            value={filters["include_deleted"] || ""}
-            options={includeDeletedOptions}
-            placeholder="Bao gồm đã xóa"
-            onChange={(value) => {
-              filters["include_deleted"] = value;
-              onChange();
-            }}
-          />
-          <div className="mt-4 flex gap-4">
-            <div className="min-w-[150px]">
-              <SelectFilter
-                value={filters["status"] || ""}
-                options={statusOptions}
-                placeholder="Chọn trạng thái"
-                onChange={(value) => {
-                  filters["status"] = value;
-                  onChange();
-                }}
-              />
-            </div>
-            <div className="min-w-[150px]">
-              <SelectFilter
-                value={filters["category_id"] || ""}
-                options={categoryOptions}
-                placeholder="Chọn danh mục"
-                onChange={(value) => {
-                  filters["category_id"] = value;
-                  onChange();
-                }}
-              />
-            </div>
+        <div className="mt-4 flex flex-wrap gap-4">
+          <div className="min-w-[150px]">
+            <SelectFilter
+              value={filters["status"] || ""}
+              options={statusOptions}
+              placeholder="Chọn trạng thái"
+              onChange={(value) => {
+                filters["status"] = value;
+                onChange();
+              }}
+            />
+          </div>
+          <div className="min-w-[150px]">
+            <SelectFilter
+              value={filters["categoryId"] || ""}
+              options={categoryOptions}
+              placeholder="Chọn danh mục"
+              onChange={(value) => {
+                filters["categoryId"] = value;
+                onChange();
+              }}
+            />
+          </div>
+          <div className="min-w-[150px]">
+            <SelectFilter
+              value={filters["postType"] || ""}
+              options={postTypeOptions}
+              placeholder="Loại bài viết"
+              onChange={(value) => {
+                filters["postType"] = value;
+                onChange();
+              }}
+            />
           </div>
         </div>
       )}
     />
   );
 }
-
-
-
-
-
-

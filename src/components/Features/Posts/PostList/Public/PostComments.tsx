@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { PostComment } from '@/types/api';
-import { publicEndpoints } from '@/lib/api/endpoints';
+import { publicEndpoints, userEndpoints } from '@/lib/api/endpoints';
 import { api } from '@/lib/api/client';
 import { useAuthStore } from "@/lib/store/authStore";
 import { useToastContext } from "@/lib/toast";
-import { ChatBubbleLeftRightIcon, EllipsisHorizontalIcon, PaperAirplaneIcon, TrashIcon, PencilIcon } from "@heroicons/react/24/outline";
+import { ChatBubbleLeftRightIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import { formatDate } from "@/utils/formatters";
 
 interface PostCommentsProps {
@@ -26,17 +26,13 @@ const CommentItem = ({ comment, currentUserId, onReply, postId }: CommentItemPro
     const [replyContent, setReplyContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Edit/Delete features are currently disabled as endpoints are not confirmed
-    const [showActions, setShowActions] = useState(false);
-    const isOwner = currentUserId && comment.user?.id && currentUserId === comment.user.id.toString();
-
     const handleReplySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!replyContent.trim()) return;
 
         setIsSubmitting(true);
         try {
-            await onReply(comment.id, replyContent);
+            await onReply(comment.id.toString(), replyContent);
             setIsReplying(false);
             setReplyContent("");
         } finally {
@@ -58,7 +54,7 @@ const CommentItem = ({ comment, currentUserId, onReply, postId }: CommentItemPro
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold bg-gray-50 uppercase">
-                            {comment.user?.name?.charAt(0) || comment.guest_name?.charAt(0) || "?"}
+                            {comment.user?.name?.charAt(0) || "?"}
                         </div>
                     )}
                 </div>
@@ -69,22 +65,10 @@ const CommentItem = ({ comment, currentUserId, onReply, postId }: CommentItemPro
                     <div className="flex justify-between items-start mb-1">
                         <div className="flex flex-col">
                             <span className="font-bold text-gray-900 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">
-                                {comment.user?.name || comment.guest_name || "Khách"}
+                                {comment.user?.name || `User #${comment.userId}`}
                             </span>
-                            <span className="text-[10px] text-gray-400 uppercase font-medium">{formatDate(comment.created_at)}</span>
+                            <span className="text-[10px] text-gray-400 uppercase font-medium">{formatDate(comment.createdAt)}</span>
                         </div>
-
-                        {/* Actions menu placeholder - enable if edit/delete APIs exist */}
-                        {/* {isOwner && (
-                            <div className="relative">
-                                <button
-                                    onClick={() => setShowActions(!showActions)}
-                                    className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-50 opacity-0 group-hover:opacity-100 transition-all"
-                                >
-                                    <EllipsisHorizontalIcon className="w-5 h-5" />
-                                </button>
-                            </div>
-                        )} */}
                     </div>
 
                     <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{comment.content}</div>
@@ -106,7 +90,7 @@ const CommentItem = ({ comment, currentUserId, onReply, postId }: CommentItemPro
                                 <textarea
                                     value={replyContent}
                                     onChange={(e) => setReplyContent(e.target.value)}
-                                    placeholder={`Trả lời ${comment.user?.name || comment.guest_name || "người dùng"}...`}
+                                    placeholder={`Trả lời ${comment.user?.name || `User #${comment.userId}`}...`}
                                     className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none text-sm resize-none h-20"
                                 />
                             </div>
@@ -149,8 +133,9 @@ export function PostComments({ postId }: PostCommentsProps) {
 
     const fetchComments = useCallback(async () => {
         try {
-            const response = await api.get(publicEndpoints.posts.comments(postId));
-            // Ensure we handle both direct array or paginated response structure
+            const response = await api.get(publicEndpoints.postComments.list, {
+                params: { postId },
+            });
             const data = response.data.data || response.data;
             setComments(Array.isArray(data) ? data : []);
         } catch (error) {
@@ -177,7 +162,10 @@ export function PostComments({ postId }: PostCommentsProps) {
 
         setIsSubmitting(true);
         try {
-            await api.post(publicEndpoints.posts.comments(postId), { content });
+            await api.post(userEndpoints.postComments.create, {
+                postId: Number(postId),
+                content,
+            });
             setContent("");
             showSuccess("Đã đăng bình luận!");
             fetchComments();
@@ -196,9 +184,10 @@ export function PostComments({ postId }: PostCommentsProps) {
         }
 
         try {
-            await api.post(publicEndpoints.posts.comments(postId), {
+            await api.post(userEndpoints.postComments.create, {
+                postId: Number(postId),
+                parentId: Number(parentId),
                 content: replyContent,
-                parent_id: parentId
             });
             showSuccess("Đã trả lời bình luận!");
             fetchComments();
@@ -253,7 +242,7 @@ export function PostComments({ postId }: PostCommentsProps) {
                         <CommentItem
                             key={comment.id}
                             comment={comment}
-                            currentUserId={user?.id.toString()}
+                            currentUserId={user?.id?.toString()}
                             onReply={handleReply}
                             postId={postId}
                         />
@@ -263,7 +252,3 @@ export function PostComments({ postId }: PostCommentsProps) {
         </div>
     );
 }
-
-
-
-

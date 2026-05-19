@@ -9,12 +9,15 @@ interface PostDetailProps {
 }
 
 export default function PostDetail({ post }: PostDetailProps) {
+    const firstCategory = post.categories?.[0];
+    const viewCount = post.stats?.viewCount;
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <PageBanner
                 title={post.name}
-                subtitle={post.excerpt}
-                backgroundImage={post.cover_image || post.image || "https://images.unsplash.com/photo-1432821596592-e2c18b78144f?auto=format&fit=crop&q=80"}
+                subtitle={post.excerpt ?? undefined}
+                backgroundImage={post.coverImage || post.image || "https://images.unsplash.com/photo-1432821596592-e2c18b78144f?auto=format&fit=crop&q=80"}
             />
 
             <div className="container mx-auto px-4 -mt-10 relative z-10">
@@ -26,23 +29,25 @@ export default function PostDetail({ post }: PostDetailProps) {
                                 {post.name?.[0] || 'A'}
                             </div>
                             <div>
-                                <p className="font-bold text-gray-900 text-lg">{post.primary_category?.name || "Tin tức"}</p>
-                                <div className="flex gap-4 text-sm text-gray-500">
-                                    <span className="flex items-center gap-1">
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                        {post.view_count} lượt xem
-                                    </span>
-                                </div>
+                                <p className="font-bold text-gray-900 text-lg">{firstCategory?.name || "Tin tức"}</p>
+                                {viewCount !== undefined && (
+                                    <div className="flex gap-4 text-sm text-gray-500">
+                                        <span className="flex items-center gap-1">
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            {viewCount} lượt xem
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         {/* Tags */}
                         {post.tags && post.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2">
-                                {post.tags.map((tag: { id: number | string; name?: string; slug?: string }) => (
+                                {post.tags.map((tag) => (
                                     <span
                                         key={tag.id}
                                         className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium hover:bg-primary/10 hover:text-primary transition-colors cursor-default"
@@ -56,14 +61,11 @@ export default function PostDetail({ post }: PostDetailProps) {
 
                     {/* Content */}
                     <div className="prose prose-lg max-w-none mb-12 text-gray-700 leading-relaxed">
-                        <div
-                            className="post-content"
-                            dangerouslySetInnerHTML={{ __html: post.content || post.description || post.excerpt || "" }}
-                        />
+                        {post.content || post.excerpt || ""}
                     </div>
 
                     {/* Comments Section */}
-                    <PostComments postId={post.id} />
+                    <PostComments postId={post.id.toString()} />
 
                     {/* Footer Actions */}
                     <div className="pt-8 border-t border-gray-100 flex justify-between items-center">

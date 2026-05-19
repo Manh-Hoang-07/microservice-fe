@@ -2,18 +2,18 @@ type Id = string | number;
 
 export const postEndpoints = {
     public: {
-        list: "/api/public/posts",
-        featured: "/api/public/posts/featured",
-        showBySlug: (slug: string) => `/api/public/posts/${slug}`,
-        comments: (postId: Id) => `/api/public/posts/${postId}/comments`,
+        list: "/api/posts/public/posts",
+        showBySlug: (slug: string) => `/api/posts/public/posts/${slug}`,
+        comments: "/api/posts/public/post-comments",
     },
     admin: {
-        list: "/api/admin/posts",
-        create: "/api/admin/posts",
-        show: (id: Id) => `/api/admin/posts/${id}`,
-        update: (id: Id) => `/api/admin/posts/${id}`,
-        delete: (id: Id) => `/api/admin/posts/${id}`,
-        stats: (id: Id) => `/api/admin/posts/${id}/stats`,
-        overview: "/api/admin/posts/statistics/overview",
+        list: "/api/posts/admin/posts",
+        simple: "/api/posts/admin/posts/simple",
+        create: "/api/posts/admin/posts",
+        show: (id: Id) => `/api/posts/admin/posts/${id}`,
+        update: (id: Id) => `/api/posts/admin/posts/${id}`,
+        delete: (id: Id) => `/api/posts/admin/posts/${id}`,
+        overview: "/api/posts/admin/posts/statistics/overview",
+        stats: (id: Id) => `/api/posts/admin/posts/${id}/stats`,
     },
 } as const;

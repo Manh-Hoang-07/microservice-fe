@@ -21,9 +21,6 @@ interface Tag {
   name?: string;
   description?: string;
   status?: string;
-  meta_title?: string;
-  meta_description?: string;
-  canonical_url?: string;
 }
 
 interface TagFormProps {
@@ -58,9 +55,6 @@ export default function TagForm({
       name: "",
       description: "",
       status: "active",
-      meta_title: "",
-      meta_description: "",
-      canonical_url: "",
     },
   });
 
@@ -80,18 +74,12 @@ export default function TagForm({
           name: tag.name || "",
           description: tag.description || "",
           status: tag.status || "active",
-          meta_title: tag.meta_title || "",
-          meta_description: tag.meta_description || "",
-          canonical_url: tag.canonical_url || "",
         });
       } else {
         reset({
           name: "",
           description: "",
           status: "active",
-          meta_title: "",
-          meta_description: "",
-          canonical_url: "",
         });
       }
     }
@@ -115,7 +103,7 @@ export default function TagForm({
     <Modal show={show} onClose={onCancel || (() => { })} title={formTitle} size="xl" loading={loading || isSubmitting}>
       <form onSubmit={handleSubmit((data) => onSubmit?.(data))} className="space-y-8 p-1">
 
-        {/* SECTION 1: THÔNG TIN THẺ */}
+        {/* SECTION: THÔNG TIN THẺ */}
         <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
           <header className="flex items-center space-x-3 mb-2">
             <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
@@ -174,52 +162,6 @@ export default function TagForm({
           </div>
         </section>
 
-        {/* SECTION 2: TỐI ƯU SEO */}
-        <section className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-6">
-          <header className="flex items-center space-x-3 mb-2">
-            <div className="p-2 bg-green-100 rounded-lg text-green-600">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">Tối ưu SEO</h3>
-              <p className="text-xs text-gray-500">Cấu hình thẻ Meta và URL thân thiện giúp tăng thứ hạng tìm kiếm</p>
-            </div>
-          </header>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              label="Meta Title (Tiêu đề SEO)"
-              {...register("meta_title")}
-              placeholder="Tiêu đề hiển thị trên Google"
-              error={errors.meta_title?.message}
-            />
-            <FormField
-              label="Canonical URL"
-              {...register("canonical_url")}
-              placeholder="https://yourdomain.com/tags/slug"
-              error={errors.canonical_url?.message}
-            />
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Meta Description</label>
-              <Controller
-                name="meta_description"
-                control={control}
-                render={({ field: { value, onChange } }) => (
-                  <CKEditor
-                    value={value || ""}
-                    onChange={onChange}
-                    height="120px"
-                    placeholder="Mô tả chuẩn SEO cho thẻ..."
-                    uploadUrl={userEndpoints.uploads.image}
-                  />
-                )}
-              />
-            </div>
-          </div>
-        </section>
-
         {/* FOOTER ACTIONS */}
         <div className="flex justify-end space-x-4 pt-6 border-t border-gray-100">
           <button
@@ -241,7 +183,3 @@ export default function TagForm({
     </Modal>
   );
 }
-
-
-
-

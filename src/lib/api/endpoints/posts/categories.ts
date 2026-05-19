@@ -2,14 +2,13 @@ type Id = string | number;
 
 export const postCategoryEndpoints = {
     public: {
-        list: "/api/public/post-categories",
-        showBySlug: (slug: string) => `/api/public/post-categories/${slug}`,
+        list: "/api/posts/public/post-categories",
     },
     admin: {
-        list: "/api/admin/post-categories",
-        create: "/api/admin/post-categories",
-        show: (id: Id) => `/api/admin/post-categories/${id}`,
-        update: (id: Id) => `/api/admin/post-categories/${id}`,
-        delete: (id: Id) => `/api/admin/post-categories/${id}`,
+        list: "/api/posts/admin/post-categories",
+        create: "/api/posts/admin/post-categories",
+        show: (id: Id) => `/api/posts/admin/post-categories/${id}`,
+        update: (id: Id) => `/api/posts/admin/post-categories/${id}`,
+        delete: (id: Id) => `/api/posts/admin/post-categories/${id}`,
     },
 } as const;

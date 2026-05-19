@@ -70,20 +70,6 @@ export default function AdminPosts({
     fetchEnums();
   }, []);
 
-  const handleRestore = async (post: Record<string, unknown>) => {
-    try {
-      const response = await api.put(`${adminEndpoints.posts.delete(post.id as number | string)}/restore`);
-      if (response.data?.success) {
-        toast.success("Bài viết đã được khôi phục thành công");
-        actions.refresh();
-      } else {
-        toast.error("Không thể khôi phục bài viết");
-      }
-    } catch (error) {
-      toast.error("Không thể khôi phục bài viết");
-    }
-  };
-
   const getStatusLabel = (status?: string): string => {
     const found = statusEnums.find((s) => s.value === status);
     return found?.label || found?.name || status || "Không xác định";
@@ -138,14 +124,11 @@ export default function AdminPosts({
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">{getCategoryNames(post.categories)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex flex-col items-center space-y-1">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border transition-colors ${getStatusClass(post.status)}`}>
-                          {getStatusLabel(post.status)}
-                        </span>
-                        {post.deleted_at && <div className="text-[10px] text-rose-600 font-bold uppercase tracking-wider">Đã xóa</div>}
-                      </div>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border transition-colors ${getStatusClass(post.status)}`}>
+                        {getStatusLabel(post.status)}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-medium text-center">{formatDate(post.created_at)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-medium text-center">{formatDate(post.createdAt)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
                       <Actions
                         item={post}
@@ -155,17 +138,16 @@ export default function AdminPosts({
                         additionalActions={[
                           {
                             label: "Xem bình luận",
-                            action: () => window.location.href = `/admin/posts-comments?post_id=${post.id}`,
+                            action: () => window.location.href = `/admin/posts/comments?postId=${post.id}`,
                             icon: "message",
                           },
                           {
-                            label: post.deleted_at ? "Khôi phục" : "Xóa",
-                            action: () => (post.deleted_at ? handleRestore(post) : openDelete(post, endpoints)),
-                            icon: post.deleted_at ? "refresh" : "trash",
-                            className: post.deleted_at ? "text-emerald-600 hover:text-emerald-700" : "text-rose-600 hover:text-rose-700"
+                            label: "Xóa",
+                            action: () => openDelete(post, endpoints),
+                            icon: "trash",
+                            className: "text-rose-600 hover:text-rose-700"
                           },
                         ]}
-
                       />
                     </td>
                   </tr>
@@ -225,7 +207,7 @@ export default function AdminPosts({
         <ConfirmModal
           show={deleteModal.isOpen}
           title="Xác nhận xóa"
-          message={`Bạn có chắc chắn muốn xóa bài viết "${deleteModal.data.displayName}"? Dữ liệu có thể khôi phục sau này.`}
+          message={`Bạn có chắc chắn muốn xóa bài viết "${deleteModal.data.displayName}"?`}
           onClose={deleteModal.close}
           onConfirm={handleDeleteConfirm}
           confirmText="Xác nhận xóa"

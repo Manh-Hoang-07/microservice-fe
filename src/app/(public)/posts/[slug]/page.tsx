@@ -21,11 +21,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     return {
         title: post.name,
-        description: post.excerpt,
+        description: post.excerpt ?? undefined,
         openGraph: {
             title: post.name,
-            description: post.excerpt,
-            images: post.cover_image ? [{ url: post.cover_image }] : [],
+            description: post.excerpt ?? undefined,
+            images: post.coverImage ? [{ url: post.coverImage }] : [],
         },
     };
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import apiClient from '@/lib/api/client';
 import { adminEndpoints } from '@/lib/api/endpoints';
-import { PostStatisticsOverview, PostViewStats } from '@/types/api';
+import { PostStatisticsOverview } from '@/types/api';
 import { format, subDays, isValid } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import {
@@ -36,10 +36,15 @@ ChartJS.register(
     ArcElement
 );
 
+interface PostDailyStat {
+    date: string;
+    viewCount: number;
+}
+
 export default function AdminPostStatistics() {
     const [overview, setOverview] = useState<PostStatisticsOverview | null>(null);
     const [selectedPostId, setSelectedPostId] = useState<string>('');
-    const [postStats, setPostStats] = useState<PostViewStats[]>([]);
+    const [postStats, setPostStats] = useState<PostDailyStat[]>([]);
     const [startDate, setStartDate] = useState<string>(
         format(subDays(new Date(), 30), 'yyyy-MM-dd')
     );
@@ -70,10 +75,10 @@ export default function AdminPostStatistics() {
 
         try {
             setStatsLoading(true);
-            const response = await apiClient.get<{ data: PostViewStats[] }>(
+            const response = await apiClient.get<{ data: PostDailyStat[] }>(
                 adminEndpoints.posts.stats(selectedPostId),
                 {
-                    params: { start_date: startDate, end_date: endDate },
+                    params: { startDate, endDate },
                 }
             );
             setPostStats(response.data.data);
@@ -123,9 +128,9 @@ export default function AdminPostStatistics() {
         datasets: [
             {
                 data: [
-                    overview.published_posts,
-                    overview.draft_posts,
-                    overview.scheduled_posts,
+                    overview.publishedPosts,
+                    overview.draftPosts,
+                    overview.scheduledPosts,
                 ],
                 backgroundColor: [
                     'rgba(34, 197, 94, 0.8)',
@@ -142,31 +147,15 @@ export default function AdminPostStatistics() {
         ],
     };
 
-    // Chart data for comment status
-    const commentChartData = {
-        labels: ['Đã duyệt', 'Chờ duyệt'],
-        datasets: [
-            {
-                data: [
-                    overview.total_comments - overview.pending_comments,
-                    overview.pending_comments,
-                ],
-                backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(239, 68, 68, 0.8)'],
-                borderColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)'],
-                borderWidth: 2,
-            },
-        ],
-    };
-
     // Chart data for post views over time
     const viewsChartData = {
         labels: postStats.map((stat) =>
-            format(new Date(stat.view_date), 'dd/MM', { locale: vi })
+            format(new Date(stat.date), 'dd/MM', { locale: vi })
         ),
         datasets: [
             {
                 label: 'Lượt xem',
-                data: postStats.map((stat) => stat.view_count),
+                data: postStats.map((stat) => stat.viewCount),
                 borderColor: 'rgba(59, 130, 246, 1)',
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 tension: 0.4,
@@ -235,7 +224,7 @@ export default function AdminPostStatistics() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-gray-600 mb-1">Tổng số bài viết</p>
-                            <p className="text-2xl font-bold text-gray-900">{formatNumber(overview.total_posts)}</p>
+                            <p className="text-2xl font-bold text-gray-900">{formatNumber(overview.totalPosts)}</p>
                         </div>
                         <FileText className="text-blue-500" size={32} />
                     </div>
@@ -245,7 +234,7 @@ export default function AdminPostStatistics() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-gray-600 mb-1">Đã xuất bản</p>
-                            <p className="text-2xl font-bold text-gray-900">{formatNumber(overview.published_posts)}</p>
+                            <p className="text-2xl font-bold text-gray-900">{formatNumber(overview.publishedPosts)}</p>
                         </div>
                         <TrendingUp className="text-green-500" size={32} />
                     </div>
@@ -255,7 +244,7 @@ export default function AdminPostStatistics() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-gray-600 mb-1">Bản nháp</p>
-                            <p className="text-2xl font-bold text-gray-900">{formatNumber(overview.draft_posts)}</p>
+                            <p className="text-2xl font-bold text-gray-900">{formatNumber(overview.draftPosts)}</p>
                         </div>
                         <FileText className="text-yellow-500" size={32} />
                     </div>
@@ -265,7 +254,7 @@ export default function AdminPostStatistics() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-gray-600 mb-1">Đã lên lịch</p>
-                            <p className="text-2xl font-bold text-gray-900">{formatNumber(overview.scheduled_posts)}</p>
+                            <p className="text-2xl font-bold text-gray-900">{formatNumber(overview.scheduledPosts)}</p>
                         </div>
                         <Clock className="text-cyan-500" size={32} />
                     </div>
@@ -275,19 +264,9 @@ export default function AdminPostStatistics() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-gray-600 mb-1">Tổng bình luận</p>
-                            <p className="text-2xl font-bold text-gray-900">{formatNumber(overview.total_comments)}</p>
+                            <p className="text-2xl font-bold text-gray-900">{formatNumber(overview.totalComments)}</p>
                         </div>
                         <MessageSquare className="text-purple-500" size={32} />
-                    </div>
-                </div>
-
-                <div className="bg-white shadow-md rounded-lg p-6 border-l-4 border-red-500">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-gray-600 mb-1">Chờ duyệt</p>
-                            <p className="text-2xl font-bold text-gray-900">{formatNumber(overview.pending_comments)}</p>
-                        </div>
-                        <Clock className="text-red-500" size={32} />
                     </div>
                 </div>
 
@@ -295,7 +274,7 @@ export default function AdminPostStatistics() {
                     <div className="flex items-center justify-between text-white">
                         <div>
                             <p className="text-sm text-blue-100 mb-1">Lượt xem (30 ngày)</p>
-                            <p className="text-3xl font-bold">{formatNumber(overview.total_views_last_30_days)}</p>
+                            <p className="text-3xl font-bold">{formatNumber(overview.totalViewsLast30Days)}</p>
                         </div>
                         <Eye className="text-white" size={40} />
                     </div>
@@ -312,15 +291,6 @@ export default function AdminPostStatistics() {
                         <Doughnut data={statusChartData} options={chartOptions} />
                     </div>
                 </div>
-
-                <div className="bg-white shadow-md rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-3 border-b">
-                        Trạng thái bình luận
-                    </h3>
-                    <div style={{ height: '300px' }}>
-                        <Doughnut data={commentChartData} options={chartOptions} />
-                    </div>
-                </div>
             </div>
 
             {/* Top Viewed Posts */}
@@ -329,7 +299,7 @@ export default function AdminPostStatistics() {
                     🔥 Top bài viết được xem nhiều nhất
                 </h3>
                 <div className="space-y-3">
-                    {overview.top_viewed_posts.map((post, index) => (
+                    {overview.topViewedPosts.map((post, index) => (
                         <div
                             key={post.id}
                             className="flex items-center gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
@@ -339,7 +309,7 @@ export default function AdminPostStatistics() {
                             </div>
                             <div className="flex-1 min-w-0">
                                 <Link
-                                    href={`/admin/postsss/${post.id}`}
+                                    href={`/posts/${post.slug}`}
                                     className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors block truncate"
                                 >
                                     {post.name}
@@ -347,8 +317,8 @@ export default function AdminPostStatistics() {
                                 <p className="text-xs text-gray-500 mt-1">
                                     Xuất bản:{' '}
                                     {(() => {
-                                        if (!post.published_at) return 'Chưa xuất bản';
-                                        const date = new Date(post.published_at);
+                                        if (!post.publishedAt) return 'Chưa xuất bản';
+                                        const date = new Date(post.publishedAt);
                                         return isValid(date)
                                             ? format(date, 'dd/MM/yyyy HH:mm', { locale: vi })
                                             : 'Chưa xuất bản';
@@ -357,7 +327,7 @@ export default function AdminPostStatistics() {
                             </div>
                             <div className="flex-shrink-0 text-right">
                                 <p className="text-xl font-bold text-blue-600">
-                                    {formatNumber(parseInt(post.view_count))}
+                                    {formatNumber(post.viewCount)}
                                 </p>
                                 <p className="text-xs text-gray-500">lượt xem</p>
                             </div>
@@ -384,7 +354,7 @@ export default function AdminPostStatistics() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="">-- Chọn bài viết --</option>
-                            {overview.top_viewed_posts.map((post) => (
+                            {overview.topViewedPosts.map((post) => (
                                 <option key={post.id} value={post.id}>
                                     {post.name}
                                 </option>
@@ -439,15 +409,14 @@ export default function AdminPostStatistics() {
                                     <div>
                                         <span className="text-sm text-gray-600">Tổng lượt xem:</span>
                                         <span className="ml-2 text-xl font-bold text-blue-600">
-                                            {formatNumber(postStats
-                                                .reduce((sum, stat) => sum + stat.view_count, 0))}
+                                            {formatNumber(postStats.reduce((sum, stat) => sum + stat.viewCount, 0))}
                                         </span>
                                     </div>
                                     <div>
                                         <span className="text-sm text-gray-600">Trung bình/ngày:</span>
                                         <span className="ml-2 text-xl font-bold text-blue-600">
                                             {formatNumber(Math.round(
-                                                postStats.reduce((sum, stat) => sum + stat.view_count, 0) /
+                                                postStats.reduce((sum, stat) => sum + stat.viewCount, 0) /
                                                 postStats.length
                                             ))}
                                         </span>
@@ -465,8 +434,3 @@ export default function AdminPostStatistics() {
         </div>
     );
 }
-
-
-
-
-

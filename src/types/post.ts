@@ -1,81 +1,99 @@
 export interface Category {
-  id: string;
+  id: number;
   name: string;
   slug: string;
+  description?: string | null;
+  parentId?: number | null;
+  sortOrder?: number;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  seoKeywords?: string | null;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  children?: Omit<Category, 'children'>[];
 }
 
 export interface Tag {
-  id: string;
+  id: number;
   name: string;
   slug: string;
+  description?: string | null;
+  status?: string;
+}
+
+export interface PostStats {
+  postId: number;
+  viewCount: number;
+  updatedAt: string;
 }
 
 export interface Post {
-  id: string;
-  name: string;
+  id: number;
   slug: string;
-  excerpt: string;
-  description?: string;
-  content: string;
-  cover_image: string | null;
+  name: string;
+  excerpt?: string | null;
+  content?: string | null;
   image?: string | null;
-  published_at?: string;
-  view_count: number | string;
-  primary_category?: Category;
+  coverImage?: string | null;
+  status: string;
+  postType: string;
+  videoUrl?: string | null;
+  audioUrl?: string | null;
+  isFeatured: boolean;
+  isPinned: boolean;
+  publishedAt?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  seoKeywords?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  stats?: PostStats;
   categories?: Category[];
   tags?: Tag[];
-  created_at?: string;
-  author?: {
-    name: string;
-    avatar?: string;
-  };
+  // admin-only fields
+  createdUserId?: number;
+  updatedUserId?: number;
+  categoryIds?: number[];
+  tagIds?: number[];
 }
 
 export interface PostComment {
-  id: string;
-  post_id: string;
-  user_id?: string | null;
-  guest_name?: string | null;
-  guest_email?: string | null;
-  parent_id?: string | null;
+  id: number;
+  userId: number;
+  postId: number;
+  parentId?: number | null;
   content: string;
-  status: 'visible' | 'hidden';
-  created_at: string;
-  post?: {
-    id: string;
-    name: string;
-    slug: string;
-  };
+  status: 'visible' | 'hidden' | 'spam' | 'deleted';
+  createdAt: string;
+  updatedAt: string;
+  replies?: PostComment[];
+  // Extended fields returned by admin API
   user?: {
-    id: string;
+    id: number;
     name: string;
     email?: string;
     image?: string | null;
   };
-  replies?: PostComment[];
-}
-
-export interface PostViewStats {
-  id: string;
-  post_id: string;
-  view_date: string;
-  view_count: number;
-  updated_at: string;
+  post?: {
+    id: number;
+    name: string;
+    slug: string;
+  };
 }
 
 export interface PostStatisticsOverview {
-  total_posts: number;
-  published_posts: number;
-  draft_posts: number;
-  scheduled_posts: number;
-  total_comments: number;
-  pending_comments: number;
-  total_views_last_30_days: number;
-  top_viewed_posts: {
-    id: string;
+  totalPosts: number;
+  publishedPosts: number;
+  draftPosts: number;
+  scheduledPosts: number;
+  totalComments: number;
+  totalViewsLast30Days: number;
+  topViewedPosts: {
+    id: number;
     name: string;
     slug: string;
-    view_count: string;
-    published_at?: string;
+    viewCount: number;
+    publishedAt?: string;
   }[];
 }

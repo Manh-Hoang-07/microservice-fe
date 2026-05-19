@@ -29,6 +29,6 @@ export interface EnhancedError extends AxiosError {
 // Domain types đã được tách ra các file riêng.
 // Import trực tiếp từ @/types/post, @/types/introduction, @/types/system khi viết code mới.
 
-export type { Category, Tag, Post, PostComment, PostViewStats, PostStatisticsOverview } from "./post";
+export type { Category, Tag, Post, PostComment, PostStats, PostStatisticsOverview } from "./post";
 export type { Project, AboutSection, TeamMember, Partner, FAQ } from "./introduction";
 export type { SystemConfig, ContactPayload, ContactResponse, ContentTemplate, Menu } from "./system";

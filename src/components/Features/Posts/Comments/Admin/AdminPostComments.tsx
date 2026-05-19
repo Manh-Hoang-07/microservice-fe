@@ -17,6 +17,13 @@ import { formatDateTime as formatDate } from "@/utils/formatters";
 
 const endpoints = adminEndpoints.postComments;
 
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+    visible: { label: "Công khai", className: "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200" },
+    hidden: { label: "Tạm ẩn", className: "bg-rose-100 text-rose-800 border-rose-200 hover:bg-rose-200" },
+    spam: { label: "Spam", className: "bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-200" },
+    deleted: { label: "Đã xóa", className: "bg-gray-100 text-gray-800 border-gray-200" },
+};
+
 interface AdminPostCommentsProps {
     title?: string;
 }
@@ -38,14 +45,14 @@ export default function AdminPostComments({
     const [togglingId, setTogglingId] = useState<string | number | null>(null);
     const [viewComment, setViewComment] = useState<PostComment | null>(null);
 
-    const handleToggleStatus = async (comment: PostComment) => {
-        const newStatus = comment.status === "visible" ? "hidden" : "visible";
+    const handleUpdateStatus = async (comment: PostComment, newStatus: string) => {
         setTogglingId(comment.id);
         try {
-            await api.put(adminEndpoints.postComments.updateStatus(comment.id), {
+            await api.patch(adminEndpoints.postComments.update(comment.id), {
                 status: newStatus,
             });
-            toast.success(`Đã ${newStatus === "visible" ? "hiện" : "ẩn"} bình luận`);
+            const cfg = STATUS_CONFIG[newStatus];
+            toast.success(`Đã đổi trạng thái thành "${cfg?.label || newStatus}"`);
             actions.refresh();
         } catch (error) {
             toast.error("Không thể cập nhật trạng thái bình luận");
@@ -56,11 +63,12 @@ export default function AdminPostComments({
 
     const renderCommentRows = (comment: PostComment, index: number, depth = 0) => {
         const isReply = depth > 0;
+        const statusCfg = STATUS_CONFIG[comment.status] || STATUS_CONFIG.hidden;
 
         return (
             <Fragment key={comment.id}>
                 <tr className={`
-                    ${comment.status === "hidden" ? "bg-rose-50/50" : ""}
+                    ${comment.status === "hidden" || comment.status === "spam" || comment.status === "deleted" ? "bg-rose-50/30" : ""}
                     ${isReply ? "bg-gray-50/10" : "bg-white"}
                     hover:bg-gray-50/80 transition-colors
                 `}>
@@ -80,12 +88,11 @@ export default function AdminPostComments({
                                 )}
                             </div>
                             <div className="ml-3 min-w-0 flex-1">
-                                <div className="text-sm font-bold text-gray-900 truncate" title={comment.user?.name || comment.guest_name || "Khách"}>
-                                    {comment.user?.name || comment.guest_name || "Khách"}
-                                    {!comment.user_id && <span className="ml-1 text-[10px] text-gray-400 font-medium uppercase">(Guest)</span>}
+                                <div className="text-sm font-bold text-gray-900 truncate" title={comment.user?.name || "Người dùng"}>
+                                    {comment.user?.name || `User #${comment.userId}`}
                                 </div>
-                                <div className="text-xs text-gray-500 truncate" title={comment.user?.email || comment.guest_email || "N/A"}>
-                                    {comment.user?.email || comment.guest_email}
+                                <div className="text-xs text-gray-500 truncate" title={comment.user?.email || ""}>
+                                    {comment.user?.email || ""}
                                 </div>
                             </div>
                         </div>
@@ -113,21 +120,14 @@ export default function AdminPostComments({
                         </div>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-center">
-                        <button
-                            onClick={() => handleToggleStatus(comment)}
-                            disabled={togglingId === comment.id}
-                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border transition-colors ${comment.status === 'visible'
-                                ? 'bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200'
-                                : 'bg-rose-100 text-rose-800 border-rose-200 hover:bg-rose-200'
-                                }`}
-                        >
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${statusCfg.className}`}>
                             {togglingId === comment.id ? (
                                 <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-                            ) : (comment.status === 'visible' ? 'Công khai' : 'Tạm ẩn')}
-                        </button>
+                            ) : statusCfg.label}
+                        </span>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-xs text-gray-500 font-medium font-primary">
-                        {formatDate(comment.created_at)}
+                        {formatDate(comment.createdAt)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                         <Actions
@@ -137,7 +137,7 @@ export default function AdminPostComments({
                             showDelete={true}
                             onDelete={() => deleteModal.open({
                                 id: comment.id,
-                                displayName: comment.user?.name || comment.guest_name || "Khách",
+                                displayName: comment.user?.name || `User #${comment.userId}`,
                                 deleteApi: adminEndpoints.postComments.delete(comment.id)
                             })}
                             additionalActions={[
@@ -146,12 +146,24 @@ export default function AdminPostComments({
                                     action: () => setViewComment(comment),
                                     icon: "eye",
                                 },
-                                {
-                                    label: comment.status === 'visible' ? 'Ẩn bình luận' : 'Hiện bình luận',
-                                    action: () => handleToggleStatus(comment),
-                                    icon: comment.status === 'visible' ? 'eye-off' : 'eye',
-                                    className: comment.status === 'visible' ? 'text-amber-600 hover:text-amber-700' : 'text-green-600 hover:text-green-700'
-                                },
+                                ...(comment.status !== "visible" ? [{
+                                    label: "Hiện bình luận",
+                                    action: () => handleUpdateStatus(comment, "visible"),
+                                    icon: "eye" as const,
+                                    className: "text-green-600 hover:text-green-700"
+                                }] : []),
+                                ...(comment.status === "visible" ? [{
+                                    label: "Ẩn bình luận",
+                                    action: () => handleUpdateStatus(comment, "hidden"),
+                                    icon: "eye-off" as const,
+                                    className: "text-amber-600 hover:text-amber-700"
+                                }] : []),
+                                ...(comment.status !== "spam" ? [{
+                                    label: "Đánh dấu Spam",
+                                    action: () => handleUpdateStatus(comment, "spam"),
+                                    icon: "trash" as const,
+                                    className: "text-orange-600 hover:text-orange-700"
+                                }] : []),
                             ]}
                         />
                     </td>
@@ -231,17 +243,26 @@ export default function AdminPostComments({
                         >
                             Đóng
                         </button>
-                        {viewComment && (
+                        {viewComment && viewComment.status !== "visible" && (
                             <button
                                 onClick={() => {
-                                    handleToggleStatus(viewComment);
+                                    handleUpdateStatus(viewComment, "visible");
                                     setViewComment(null);
                                 }}
-                                className={`px-6 py-2.5 text-white rounded-xl transition-all font-bold active:scale-95 shadow-lg text-sm ${viewComment.status === 'visible'
-                                    ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20'
-                                    : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'}`}
+                                className="px-6 py-2.5 text-white rounded-xl transition-all font-bold active:scale-95 shadow-lg text-sm bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20"
                             >
-                                {viewComment.status === 'visible' ? 'Ẩn bình luận' : 'Hiện bình luận'}
+                                Hiện bình luận
+                            </button>
+                        )}
+                        {viewComment && viewComment.status === "visible" && (
+                            <button
+                                onClick={() => {
+                                    handleUpdateStatus(viewComment, "hidden");
+                                    setViewComment(null);
+                                }}
+                                className="px-6 py-2.5 text-white rounded-xl transition-all font-bold active:scale-95 shadow-lg text-sm bg-amber-500 hover:bg-amber-600 shadow-amber-500/20"
+                            >
+                                Ẩn bình luận
                             </button>
                         )}
                     </div>
@@ -259,19 +280,22 @@ export default function AdminPostComments({
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-xl font-black text-gray-900 leading-tight">
-                                    {viewComment.user?.name || viewComment.guest_name || "Khách"}
+                                    {viewComment.user?.name || `User #${viewComment.userId}`}
                                 </span>
                                 <span className="text-sm text-gray-500 font-medium">
-                                    {viewComment.user?.email || viewComment.guest_email || "Email chưa cập nhật"}
+                                    {viewComment.user?.email || ""}
                                 </span>
                             </div>
                             <div className="ml-auto flex flex-col items-end">
-                                <span className={`px-2.5 py-1 text-[10px] font-black uppercase rounded-lg tracking-widest border transition-colors ${viewComment.status === 'visible'
-                                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                                    : 'bg-rose-100 text-rose-800 border-rose-200'}`}>
-                                    {viewComment.status === 'visible' ? 'Công khai' : 'Tạm ẩn'}
-                                </span>
-                                <span className="text-[10px] text-gray-400 font-bold mt-2 uppercase tracking-tight">{formatDate(viewComment.created_at)}</span>
+                                {(() => {
+                                    const cfg = STATUS_CONFIG[viewComment.status] || STATUS_CONFIG.hidden;
+                                    return (
+                                        <span className={`px-2.5 py-1 text-[10px] font-black uppercase rounded-lg tracking-widest border ${cfg.className}`}>
+                                            {cfg.label}
+                                        </span>
+                                    );
+                                })()}
+                                <span className="text-[10px] text-gray-400 font-bold mt-2 uppercase tracking-tight">{formatDate(viewComment.createdAt)}</span>
                             </div>
                         </div>
 

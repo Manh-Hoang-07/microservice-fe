@@ -18,15 +18,12 @@ export default function PostCommentsFilter({
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                // Fetch a reasonable number of recent posts for the filter, or all if feasible.
-                // Assuming standard pagination, we might want to fetch a larger page or search.
-                // For now, simple fetch.
-                const response = await api.get(adminEndpoints.posts.list, { params: { limit: 100 } });
-                const data = response.data.data || response.data;
+                const response = await api.get(adminEndpoints.posts.simple);
+                const data = response.data?.data || [];
                 if (Array.isArray(data)) {
                     setPosts(data.map((post: Record<string, unknown>) => ({
                         value: String(post.id),
-                        label: (post.name || post.title) as string,
+                        label: post.name as string,
                     })));
                 }
             } catch (error) {
@@ -40,11 +37,13 @@ export default function PostCommentsFilter({
         { value: "", label: "Tất cả trạng thái" },
         { value: "visible", label: "Công khai" },
         { value: "hidden", label: "Đang ẩn" },
+        { value: "spam", label: "Spam" },
+        { value: "deleted", label: "Đã xóa" },
     ];
 
     const sortOptions = [
-        { value: "created_at:desc", label: "Mới nhất" },
-        { value: "created_at:asc", label: "Cũ nhất" },
+        { value: "createdAt:desc", label: "Mới nhất" },
+        { value: "createdAt:asc", label: "Cũ nhất" },
     ];
 
     const postOptions = [
@@ -58,7 +57,7 @@ export default function PostCommentsFilter({
             sortOptions={sortOptions}
             sortField="sort"
             searchField="search"
-            searchPlaceholder="Tìm kiếm nội dung, người gửi..."
+            searchPlaceholder="Tìm kiếm nội dung..."
             onUpdateFilters={onUpdateFilters}
             hasAdvancedFilters={true}
             advancedFilters={({ filters, onChange }) => (
@@ -76,11 +75,11 @@ export default function PostCommentsFilter({
                     </div>
                     <div className="w-full md:w-64">
                         <SelectFilter
-                            value={filters["post_id"] || ""}
+                            value={filters["postId"] || ""}
                             options={postOptions}
                             placeholder="Bài viết"
                             onChange={(value) => {
-                                filters["post_id"] = value;
+                                filters["postId"] = value;
                                 onChange();
                             }}
                         />
@@ -90,6 +89,3 @@ export default function PostCommentsFilter({
         />
     );
 }
-
-
-

@@ -1,17 +1,15 @@
 import { z } from "zod";
-import { statusField, sortOrderField, optionalImage, optionalUrl, metaFields, optionalNumber } from "@/config/validations/common";
+import { statusField, sortOrderField, optionalText, optionalNumber } from "@/config/validations/common";
 
 export const postCategorySchema = z.object({
   name: z.string().min(1, "Tên danh mục là bắt buộc").max(255, "Tên danh mục không được vượt quá 255 ký tự"),
   description: z.string().optional().nullable(),
-  image: optionalImage,
-  og_image: optionalImage,
   status: statusField,
-  sort_order: sortOrderField,
-  parent_id: optionalNumber,
-  meta_title: metaFields.meta_title,
-  meta_description: metaFields.meta_description,
-  canonical_url: optionalUrl,
+  sortOrder: sortOrderField,
+  parentId: optionalNumber,
+  seoTitle: optionalText(255, "SEO Title"),
+  seoDescription: optionalText(2000, "SEO Description"),
+  seoKeywords: optionalText(500, "SEO Keywords"),
 });
 
 export type PostCategoryFormValues = z.infer<typeof postCategorySchema>;

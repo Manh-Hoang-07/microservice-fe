@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { postCategorySchema, type PostCategoryFormValues } from "./postCategorySchema";
 import Modal from "@/components/UI/Feedback/Modal";
 import FormField from "@/components/UI/Forms/FormField";
-import ImageUploader from "@/components/UI/Forms/ImageUploader";
 import dynamic from "next/dynamic";
 const CKEditor = dynamic(() => import("@/components/UI/Forms/CKEditor"), {
   ssr: false,
@@ -24,14 +23,12 @@ interface PostCategory {
   id?: number;
   name?: string;
   description?: string;
-  image?: string | null;
-  og_image?: string | null;
   status?: string;
-  sort_order?: number;
-  parent_id?: number | null;
-  meta_title?: string;
-  meta_description?: string;
-  canonical_url?: string;
+  sortOrder?: number;
+  parentId?: number | null;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
 }
 
 interface PostCategoryFormProps {
@@ -65,14 +62,12 @@ export default function PostCategoryForm({
     defaultValues: {
       name: "",
       description: "",
-      image: "",
-      og_image: "",
       status: "active",
-      sort_order: 0,
-      parent_id: null,
-      meta_title: "",
-      meta_description: "",
-      canonical_url: "",
+      sortOrder: 0,
+      parentId: null,
+      seoTitle: "",
+      seoDescription: "",
+      seoKeywords: "",
     },
   });
 
@@ -91,27 +86,23 @@ export default function PostCategoryForm({
         reset({
           name: category.name || "",
           description: category.description || "",
-          image: category.image || "",
-          og_image: category.og_image || "",
           status: category.status || "active",
-          sort_order: category.sort_order || 0,
-          parent_id: category.parent_id || null,
-          meta_title: category.meta_title || "",
-          meta_description: category.meta_description || "",
-          canonical_url: category.canonical_url || "",
+          sortOrder: category.sortOrder || 0,
+          parentId: category.parentId || null,
+          seoTitle: category.seoTitle || "",
+          seoDescription: category.seoDescription || "",
+          seoKeywords: category.seoKeywords || "",
         });
       } else {
         reset({
           name: "",
           description: "",
-          image: "",
-          og_image: "",
           status: "active",
-          sort_order: 0,
-          parent_id: null,
-          meta_title: "",
-          meta_description: "",
-          canonical_url: "",
+          sortOrder: 0,
+          parentId: null,
+          seoTitle: "",
+          seoDescription: "",
+          seoKeywords: "",
         });
       }
     }
@@ -177,28 +168,6 @@ export default function PostCategoryForm({
               />
             </div>
 
-            <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-gray-200">
-              <label className="text-sm font-semibold text-gray-700 mb-4 self-start">Ảnh đại diện</label>
-              <Controller
-                name="image"
-                control={control}
-                render={({ field: { value, onChange } }) => (
-                  <ImageUploader value={value} onChange={onChange} />
-                )}
-              />
-            </div>
-
-            <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-gray-200">
-              <label className="text-sm font-semibold text-gray-700 mb-4 self-start">OG Image (Social Share)</label>
-              <Controller
-                name="og_image"
-                control={control}
-                render={({ field: { value, onChange } }) => (
-                  <ImageUploader value={value} onChange={onChange} />
-                )}
-              />
-            </div>
-
             <div className="space-y-4">
               <Controller
                 name="status"
@@ -219,8 +188,8 @@ export default function PostCategoryForm({
               <FormField
                 label="Thứ tự hiển thị"
                 type="number"
-                {...register("sort_order")}
-                error={errors.sort_order?.message}
+                {...register("sortOrder")}
+                error={errors.sortOrder?.message}
               />
             </div>
           </div>
@@ -240,35 +209,27 @@ export default function PostCategoryForm({
             </div>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <FormField
-              label="Meta Title (Tiêu đề SEO)"
-              {...register("meta_title")}
-              placeholder="Tiêu đề chuẩn SEO (từ 50-60 ký tự)"
-              error={errors.meta_title?.message}
+              label="SEO Title"
+              {...register("seoTitle")}
+              placeholder="Tiêu đề SEO (tối đa 255 ký tự)"
+              error={errors.seoTitle?.message}
             />
             <FormField
-              label="Canonical URL"
-              {...register("canonical_url")}
-              placeholder="https://yourdomain.com/canonical-url"
-              error={errors.canonical_url?.message}
+              label="SEO Description"
+              type="textarea"
+              rows={2}
+              {...register("seoDescription")}
+              placeholder="Mô tả SEO (tối đa 2000 ký tự)"
+              error={errors.seoDescription?.message}
             />
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Meta Description</label>
-              <Controller
-                name="meta_description"
-                control={control}
-                render={({ field: { value, onChange } }) => (
-                  <CKEditor
-                    value={value || ""}
-                    onChange={onChange}
-                    height="120px"
-                    placeholder="Mô tả chuẩn SEO (từ 150-160 ký tự)..."
-                    uploadUrl={userEndpoints.uploads.image}
-                  />
-                )}
-              />
-            </div>
+            <FormField
+              label="SEO Keywords"
+              {...register("seoKeywords")}
+              placeholder="keyword1, keyword2, keyword3"
+              error={errors.seoKeywords?.message}
+            />
           </div>
         </section>
 
@@ -293,7 +254,3 @@ export default function PostCategoryForm({
     </Modal>
   );
 }
-
-
-
-

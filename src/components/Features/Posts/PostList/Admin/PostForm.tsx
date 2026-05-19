@@ -13,11 +13,10 @@ const CKEditor = dynamic(() => import("@/components/UI/Forms/CKEditor"), {
   loading: () => <div className="h-[400px] bg-gray-50 border border-gray-200 rounded animate-pulse" />,
 });
 import SingleSelectEnhanced from "@/components/UI/Forms/SingleSelectEnhanced";
-import SearchableSelect from "@/components/UI/Forms/SearchableSelect";
 import MultipleSelect from "@/components/UI/Forms/MultipleSelect";
 import { adminEndpoints } from "@/lib/api/endpoints";
 import api from "@/lib/api/client";
-import { formatDate } from "@/utils/formatters";
+import { format as formatDateFns } from "date-fns";
 
 interface PostFormProps {
   show: boolean;
@@ -62,28 +61,24 @@ export default function PostForm({
       name: "",
       excerpt: "",
       content: "",
-      cover_image: "",
+      coverImage: "",
       image: "",
-      post_type: "text",
-      video_url: "",
-      audio_url: "",
+      postType: "text",
+      videoUrl: "",
+      audioUrl: "",
       status: "draft",
-      published_at: "",
-      primary_postcategory_id: undefined,
-      category_ids: [],
-      tag_ids: [],
-      is_featured: false,
-      is_pinned: false,
-      meta_title: "",
-      meta_description: "",
-      canonical_url: "",
-      og_title: "",
-      og_description: "",
-      og_image: "",
+      publishedAt: "",
+      categoryIds: [],
+      tagIds: [],
+      isFeatured: false,
+      isPinned: false,
+      seoTitle: "",
+      seoDescription: "",
+      seoKeywords: "",
     },
   });
 
-  const postType = watch("post_type");
+  const postType = watch("postType");
 
   // Load Categories & Tags
   useEffect(() => {
@@ -130,48 +125,42 @@ export default function PostForm({
           name: (post.name as string) || "",
           excerpt: (post.excerpt as string) || "",
           content: (post.content as string) || "",
-          cover_image: (post.cover_image as string) || "",
+          coverImage: (post.coverImage as string) || "",
           image: (post.image as string) || "",
-          post_type: (post.post_type as string) || "text",
-          video_url: (post.video_url as string) || "",
-          audio_url: (post.audio_url as string) || "",
+          postType: (post.postType as string) || "text",
+          videoUrl: (post.videoUrl as string) || "",
+          audioUrl: (post.audioUrl as string) || "",
           status: (post.status as string) || "draft",
-          published_at: post.published_at ? formatDate(post.published_at as string, "yyyy-MM-dd") : "",
-          primary_postcategory_id: post.primary_postcategory_id as number | undefined,
-          category_ids: (post.categories as { id: number | string }[] | undefined)?.map((c) => c.id as number) || [],
-          tag_ids: (post.tags as { id: number | string }[] | undefined)?.map((t) => t.id as number) || [],
-          is_featured: !!post.is_featured,
-          is_pinned: !!post.is_pinned,
-          meta_title: (post.meta_title as string) || "",
-          meta_description: (post.meta_description as string) || "",
-          canonical_url: (post.canonical_url as string) || "",
-          og_title: (post.og_title as string) || "",
-          og_description: (post.og_description as string) || "",
-          og_image: (post.og_image as string) || "",
+          publishedAt: post.publishedAt ? formatDateFns(new Date(post.publishedAt as string), "yyyy-MM-dd'T'HH:mm") : "",
+          categoryIds: (post.categories as { id: number | string }[] | undefined)?.map((c) => c.id as number) ||
+                       (post.categoryIds as number[] | undefined) || [],
+          tagIds: (post.tags as { id: number | string }[] | undefined)?.map((t) => t.id as number) ||
+                  (post.tagIds as number[] | undefined) || [],
+          isFeatured: !!post.isFeatured,
+          isPinned: !!post.isPinned,
+          seoTitle: (post.seoTitle as string) || "",
+          seoDescription: (post.seoDescription as string) || "",
+          seoKeywords: (post.seoKeywords as string) || "",
         });
       } else {
         reset({
           name: "",
           excerpt: "",
           content: "",
-          cover_image: "",
+          coverImage: "",
           image: "",
-          post_type: "text",
-          video_url: "",
-          audio_url: "",
+          postType: "text",
+          videoUrl: "",
+          audioUrl: "",
           status: "draft",
-          published_at: "",
-          primary_postcategory_id: undefined,
-          category_ids: [],
-          tag_ids: [],
-          is_featured: false,
-          is_pinned: false,
-          meta_title: "",
-          meta_description: "",
-          canonical_url: "",
-          og_title: "",
-          og_description: "",
-          og_image: "",
+          publishedAt: "",
+          categoryIds: [],
+          tagIds: [],
+          isFeatured: false,
+          isPinned: false,
+          seoTitle: "",
+          seoDescription: "",
+          seoKeywords: "",
         });
       }
     }
@@ -233,8 +222,8 @@ export default function PostForm({
             <FormField
               label="Ngày xuất bản"
               type="datetime-local"
-              {...register("published_at")}
-              error={errors.published_at?.message}
+              {...register("publishedAt")}
+              error={errors.publishedAt?.message}
             />
 
             <Controller
@@ -253,7 +242,7 @@ export default function PostForm({
             />
 
             <Controller
-              name="post_type"
+              name="postType"
               control={control}
               render={({ field }) => (
                 <SingleSelectEnhanced
@@ -261,7 +250,7 @@ export default function PostForm({
                   options={postTypeOptions}
                   label="Loại bài viết"
                   placeholder="-- Chọn loại --"
-                  error={errors.post_type?.message}
+                  error={errors.postType?.message}
                 />
               )}
             />
@@ -303,7 +292,7 @@ export default function PostForm({
             <div className="space-y-4">
               <label className="block text-sm font-semibold text-gray-700">Ảnh bìa (Cover)</label>
               <Controller
-                name="cover_image"
+                name="coverImage"
                 control={control}
                 render={({ field }) => (
                   <ImageUploader {...field} />
@@ -311,7 +300,7 @@ export default function PostForm({
               />
             </div>
             <div className="space-y-4">
-              <label className="block text-sm font-semibold text-gray-700">Ảnh đại diện</label>
+              <label className="block text-sm font-semibold text-gray-700">Ảnh đại diện (Thumbnail)</label>
               <Controller
                 name="image"
                 control={control}
@@ -326,7 +315,7 @@ export default function PostForm({
         {/* SECTION: NỘI DUNG CHI TIẾT */}
         <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-gray-900">Nội dung chi tiết <span className="text-red-500">*</span></h3>
+            <h3 className="text-lg font-bold text-gray-900">Nội dung chi tiết</h3>
           </div>
           <Controller
             name="content"
@@ -334,6 +323,7 @@ export default function PostForm({
             render={({ field }) => (
               <CKEditor
                 {...field}
+                value={field.value || ""}
                 height="450px"
               />
             )}
@@ -344,8 +334,8 @@ export default function PostForm({
             <FormField
               label="Video URL"
               placeholder="https://youtube.com/..."
-              {...register("video_url")}
-              error={errors.video_url?.message}
+              {...register("videoUrl")}
+              error={errors.videoUrl?.message}
             />
           )}
 
@@ -353,8 +343,8 @@ export default function PostForm({
             <FormField
               label="Audio URL"
               placeholder="https://..."
-              {...register("audio_url")}
-              error={errors.audio_url?.message}
+              {...register("audioUrl")}
+              error={errors.audioUrl?.message}
             />
           )}
         </div>
@@ -375,37 +365,20 @@ export default function PostForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Controller
-              name="primary_postcategory_id"
-              control={control}
-              render={({ field }) => (
-                <div className="space-y-1.5">
-                  <label className="text-sm font-semibold text-gray-700">Danh mục chính <span className="text-red-500">*</span></label>
-                  <SearchableSelect
-                    {...field}
-                    searchApi={adminEndpoints.postCategories.list}
-                    labelField="name"
-                    placeholder="Chọn danh mục chính"
-                    error={errors.primary_postcategory_id?.message}
-                  />
-                </div>
-              )}
-            />
-
-            <Controller
-              name="category_ids"
+              name="categoryIds"
               control={control}
               render={({ field }) => (
                 <MultipleSelect
                   {...field}
                   options={categoryOptions}
-                  label="Danh mục bổ sung"
+                  label="Danh mục"
                   placeholder="Chọn danh mục"
                 />
               )}
             />
 
             <Controller
-              name="tag_ids"
+              name="tagIds"
               control={control}
               render={({ field }) => (
                 <MultipleSelect
@@ -419,11 +392,11 @@ export default function PostForm({
 
             <div className="grid grid-cols-2 gap-4 h-fit self-end">
               <label className="flex items-center space-x-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors">
-                <input type="checkbox" {...register("is_featured")} className="w-5 h-5 rounded text-blue-600" />
+                <input type="checkbox" {...register("isFeatured")} className="w-5 h-5 rounded text-blue-600" />
                 <span className="text-sm font-medium text-gray-700">Nổi bật</span>
               </label>
               <label className="flex items-center space-x-3 p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors">
-                <input type="checkbox" {...register("is_pinned")} className="w-5 h-5 rounded text-blue-600" />
+                <input type="checkbox" {...register("isPinned")} className="w-5 h-5 rounded text-blue-600" />
                 <span className="text-sm font-medium text-gray-700">Ghim đầu</span>
               </label>
             </div>
@@ -445,22 +418,14 @@ export default function PostForm({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField label="Meta Title" {...register("meta_title")} error={errors.meta_title?.message} />
-            <FormField label="Canonical URL" {...register("canonical_url")} error={errors.canonical_url?.message} />
             <div className="md:col-span-2">
-              <FormField label="Meta Description" type="textarea" rows={2} {...register("meta_description")} error={errors.meta_description?.message} />
-            </div>
-            <FormField label="OG Title" {...register("og_title")} error={errors.og_title?.message} />
-            <div className="md:col-span-1 space-y-4">
-              <label className="block text-sm font-semibold text-gray-700">OG Image</label>
-              <Controller
-                name="og_image"
-                control={control}
-                render={({ field }) => <ImageUploader {...field} />}
-              />
+              <FormField label="SEO Title" {...register("seoTitle")} error={errors.seoTitle?.message} placeholder="Tiêu đề SEO (tối đa 255 ký tự)" />
             </div>
             <div className="md:col-span-2">
-              <FormField label="OG Description" type="textarea" rows={2} {...register("og_description")} error={errors.og_description?.message} />
+              <FormField label="SEO Description" type="textarea" rows={2} {...register("seoDescription")} error={errors.seoDescription?.message} placeholder="Mô tả SEO (tối đa 2000 ký tự)" />
+            </div>
+            <div className="md:col-span-2">
+              <FormField label="SEO Keywords" {...register("seoKeywords")} error={errors.seoKeywords?.message} placeholder="keyword1, keyword2, keyword3" />
             </div>
           </div>
         </div>
@@ -486,7 +451,3 @@ export default function PostForm({
     </Modal>
   );
 }
-
-
-
-
