@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { useListPage, type UseListPageOptions, type ListItem } from "./useListPage";
 import useModal from "../ui-ux/useModal";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import apiClient from "@/lib/api/client";
 
 // ===== TYPES =====

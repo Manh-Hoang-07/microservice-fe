@@ -7,7 +7,7 @@ import {
     AdminViewHistoryItem,
     AdminAnalyticsComicStat,
 } from "@/types/comic";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { format, subDays } from "date-fns";
 
 export function useComicStats() {

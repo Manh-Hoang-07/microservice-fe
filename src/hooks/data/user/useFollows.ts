@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/lib/store/authStore";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { userComicService } from "@/lib/api/user/comic";
 
 export function useFollows() {

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { userComicService } from "@/lib/api/user/comic";
 import { useAuthStore } from "@/lib/store/authStore";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { BookmarkIcon } from "@heroicons/react/24/outline";
 import { BookmarkIcon as BookmarkSolidIcon } from "@heroicons/react/24/solid";
 

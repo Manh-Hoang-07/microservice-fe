@@ -4,7 +4,6 @@ import type { AxiosError } from "axios";
 import apiClient from "@/lib/api/client";
 import { userEndpoints } from "@/lib/api/endpoints";
 import { setTokenToCookie, clearTokenFromCookie, getTokenFromCookie } from "@/lib/api/utils";
-import { initializeUserGroups } from "@/lib/group/utils";
 import { storage } from "@/lib/storage";
 import type { User, LoginCredentials, RegisterData, ResetPasswordData, AuthResult, AuthState, AuthActions } from "./authTypes";
 import { EMPTY_AUTH_STATE } from "./authTypes";
@@ -20,12 +19,10 @@ function clearLocalUserData() {
   storage.user.clearPermissions();
 }
 
-/** Xoa tat ca auth + group data khoi localStorage & cookies */
+/** Xoa tat ca auth data khoi localStorage & cookies */
 function clearAllLocalData() {
   clearLocalUserData();
   storage.auth.clearRefreshToken();
-  storage.group.clearGroups();
-  storage.group.clearSelected();
 }
 
 /** Luu user data vao localStorage */
@@ -137,10 +134,6 @@ export const useAuthStore = create<AuthState & AuthActions>()(
                 // Token is valid but couldn't fetch user info - still authenticated
               }
             }
-
-            // Clear old group data
-            storage.group.clearGroups();
-            storage.group.clearSelected();
 
             return { success: true, data: response.data.data, message: response.data.message };
           }

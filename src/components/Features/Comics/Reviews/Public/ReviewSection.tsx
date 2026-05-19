@@ -5,7 +5,7 @@ import Image from "next/image";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutline } from "@heroicons/react/24/outline";
 import { reviewService } from "@/lib/api/user/review";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { formatDate } from "@/utils/formatters";
 
 interface ReviewSectionProps {

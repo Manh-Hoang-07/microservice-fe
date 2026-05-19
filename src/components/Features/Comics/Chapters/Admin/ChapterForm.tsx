@@ -7,7 +7,7 @@ import { chapterSchema, type ChapterFormValues } from "./chapterSchema";
 import { AdminChapter, AdminComic } from "@/types/comic";
 import FormField from "@/components/UI/Forms/FormField";
 import SingleSelectEnhanced from "@/components/UI/Forms/SingleSelectEnhanced";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { adminComicService } from "@/lib/api/admin/comic";
 
 interface ChapterFormProps {

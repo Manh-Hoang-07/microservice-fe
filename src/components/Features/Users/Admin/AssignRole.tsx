@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import Modal from "@/components/UI/Feedback/Modal";
 import api from "@/lib/api/client";
 import { adminEndpoints } from "@/lib/api/endpoints";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 
 import { type AssignRoleProps } from "./Constants/types";
 

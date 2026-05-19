@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuthStore } from "@/lib/store/authStore";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { authEndpoints } from "@/lib/api/endpoints";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 

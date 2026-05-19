@@ -12,7 +12,6 @@ export * from "./data/system/useSystemConfig";
 export * from "./data/system/useSystemConfigFetch";
 export * from "./data/system/useSystemConfigCache";
 export * from "./data/system/useSystemConfigValue";
-export * from "./data/system/useGroup";
 export * from "./data/system/useMenus";
 
 // Forms

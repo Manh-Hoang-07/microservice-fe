@@ -10,7 +10,7 @@ import FormField from "@/components/UI/Forms/FormField";
 import { useAuthStore } from "@/lib/store/authStore";
 import ImageUploader from "@/components/UI/Forms/ImageUploader";
 import { userService } from "@/lib/api/user";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 
 // 1. Define Profile Schema
 const profileSchema = z.object({

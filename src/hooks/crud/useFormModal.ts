@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import apiClient from "@/lib/api/client";
 import { normalizeDetailResponse } from "@/lib/api/response-normalizer";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 
 // ===== TYPES =====
 

@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuthStore } from "@/lib/store/authStore";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { ArrowLeft, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 
 const emailSchema = z.object({ email: z.string().min(1, "Email là bắt buộc").email("Email không hợp lệ") });

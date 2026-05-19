@@ -6,7 +6,7 @@ import { PostComment } from '@/types/api';
 import { publicEndpoints } from '@/lib/api/endpoints';
 import { api } from '@/lib/api/client';
 import { useAuthStore } from "@/lib/store/authStore";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { ChatBubbleLeftRightIcon, EllipsisHorizontalIcon, PaperAirplaneIcon, TrashIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { formatDate } from "@/utils/formatters";
 

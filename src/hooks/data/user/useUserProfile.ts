@@ -7,7 +7,7 @@ import * as z from "zod";
 import { userService } from "@/lib/api/user";
 import type { UserData } from "@/lib/api/user";
 import { useAuthStore } from "@/lib/store/authStore";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 
 // ===== TYPES =====
 export interface UserProfile {

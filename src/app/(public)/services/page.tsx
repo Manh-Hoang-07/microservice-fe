@@ -5,7 +5,6 @@ import { ServiceFilter } from "@/components/Features/CMS/Services/Public/Service
 import { Metadata } from "next";
 import HeroBanner from "@/components/Features/CMS/Banners/Public/HeroBanner";
 import { Breadcrumbs } from "@/components/UI/Navigation/Breadcrumbs";
-import { getServices } from "@/lib/data/mock-services";
 
 export const metadata: Metadata = {
   title: "Dịch vụ",
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ServicesPage() {
-  const services = await getServices();
+  const services: never[] = [];
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] pb-20 transition-colors duration-300">

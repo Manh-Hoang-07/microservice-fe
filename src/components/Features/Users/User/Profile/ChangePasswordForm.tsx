@@ -8,7 +8,7 @@ import * as z from "zod";
 import { Button } from "@/components/UI/Navigation/Button";
 import FormField from "@/components/UI/Forms/FormField";
 import { userService } from "@/lib/api/user";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 
 // 1. Define Change Password Schema
 const changePasswordSchema = z.object({

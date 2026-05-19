@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api/client";
 import { adminEndpoints } from "@/lib/api/endpoints";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { normalizeDetailResponse, normalizeListResponse } from "@/lib/api/response-normalizer";
 import SkeletonLoader from "@/components/UI/Feedback/SkeletonLoader";
 import ConfirmModal from "@/components/UI/Feedback/ConfirmModal";

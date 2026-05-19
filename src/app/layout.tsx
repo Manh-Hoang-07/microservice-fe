@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "@/styles/globals.css";
-import { ToastProvider } from "@/contexts/ToastContext";
+import { ToastProvider } from "@/lib/toast";
 import ToastContainer from "@/components/UI/Feedback/ToastContainer";
 import { AuthInitializer } from "@/components/Providers/AuthInitializer";
 

@@ -15,7 +15,7 @@ const CKEditor = dynamic(() => import("@/components/UI/Forms/CKEditor"), {
   loading: () => <div className="h-[400px] bg-gray-50 border border-gray-200 rounded animate-pulse" />,
 });
 import SingleSelectEnhanced from "@/components/UI/Forms/SingleSelectEnhanced";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import Modal from "@/components/UI/Feedback/Modal";
 import { userEndpoints } from "@/lib/api/endpoints";
 

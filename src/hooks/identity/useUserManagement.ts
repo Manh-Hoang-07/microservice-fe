@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import apiClient from "@/lib/api/client";
 import { userEndpoints } from "@/lib/api/endpoints";
 import { normalizeDetailResponse } from "@/lib/api/response-normalizer";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { useAuthStore } from "@/lib/store/authStore";
 
 export interface UserProfile {

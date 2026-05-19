@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { adminComicService } from "@/lib/api/admin/comic";
 import { AdminComicCategory, AdminMeta } from "@/types/comic";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 
 interface ComicCategoryListProps {
     onEdit: (category: AdminComicCategory) => void;

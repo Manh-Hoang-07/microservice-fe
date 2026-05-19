@@ -3,7 +3,7 @@
 import { useState } from "react";
 import ChangePasswordForm from "./ChangePasswordForm";
 import api from "@/lib/api/client";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { type ChangePasswordProps } from "./Constants/types";
 
 

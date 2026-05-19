@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { commentService } from "@/lib/api/user/comment";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 import { ChatBubbleLeftRightIcon, EllipsisHorizontalIcon, PaperAirplaneIcon, TrashIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { formatDate } from "@/utils/formatters";
 import { ComicComment } from "@/types/comic";

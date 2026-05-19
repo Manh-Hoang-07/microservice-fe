@@ -6,7 +6,7 @@ import FormField from "@/components/UI/Forms/FormField";
 import ImageUploader from "@/components/UI/Forms/ImageUploader";
 import { api } from "@/lib/api/client";
 import { adminEndpoints } from "@/lib/api/endpoints";
-import { useToastContext } from "@/contexts/ToastContext";
+import { useToastContext } from "@/lib/toast";
 
 interface ConfigField {
     key: string;
